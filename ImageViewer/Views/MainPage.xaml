@@ -1,0 +1,265 @@
+﻿<Page x:Class="ImageViewer.Views.MainPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:ImageViewer.Views"
+      xmlns:prism="http://prismlibrary.com/"
+      xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
+      prism:ViewModelLocator.AutoWireViewModel="True"
+      mc:Ignorable="d" 
+      d:DesignHeight="700" d:DesignWidth="1200"
+      Title="MainPage">
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            
+            <!-- The image and the side bars -->
+            <RowDefinition Height="*"/>
+            
+            <!-- Bottom dropshadow -->
+            <RowDefinition Height="Auto"/>
+
+            <!-- The bottom bar with buttons -->
+            <RowDefinition Height="Auto"/>
+
+        </Grid.RowDefinitions>
+
+        <!-- Main Container -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                
+                <!-- Image List -->
+                <ColumnDefinition Width="Auto"/>
+
+                <!-- Left side drop shadow -->
+                <ColumnDefinition Width="Auto"/>
+
+                <!-- Image -->
+                <ColumnDefinition Width="*"/>
+
+                <!-- Right side drop shadow -->
+                <ColumnDefinition Width="Auto"/>
+
+                <!-- Edit bar -->
+                <ColumnDefinition Width="Auto"/>
+
+            </Grid.ColumnDefinitions>
+
+            <!-- Image List -->
+            <ListView Grid.Column="0" 
+                      Background="Transparent"
+                      BorderBrush="Transparent"
+                      Visibility="{Binding IsListVisible, Converter={StaticResource BooleanToVisibilityConverter}}"  
+                      FontSize="18" ItemsSource="{Binding Images}" 
+                      SelectedItem="{Binding ImageModel}">
+
+                <ListView.View>
+                    <GridView>
+                        
+                        <!-- Displays image file name -->
+                        <GridViewColumn Width="148" Header="Images" DisplayMemberBinding="{Binding FileName}"></GridViewColumn>
+                    
+                    </GridView>
+                </ListView.View>
+                
+            </ListView>
+
+            <!-- Left drop shadow -->
+            <Border Grid.Column="1" Width="6" BorderThickness="0.2 0 0 0">
+                <!-- Underline -->
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                        <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0, 0.5" EndPoint="1, 0.5">
+                        <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                
+            </Border>
+
+            <!-- Scrollviewer to make sure that image will fit in screen-->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                
+                <!-- The image -->
+                <Image RenderTransformOrigin="0.5, 0.5" 
+                   VerticalAlignment="Center"
+                   MouseDown="ImageView_MouseDown"
+                   MouseUp="ImageView_MouseUp"
+                   MouseMove="ImageView_MouseMove"
+                   x:Name="ImageView"
+                   Source="{Binding ImageModel.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
+                    <Image.LayoutTransform>
+                        <TransformGroup/>
+                    </Image.LayoutTransform>
+
+                </Image>
+
+            </ScrollViewer>
+
+            <!-- Right side drop shadow -->
+            <Border Grid.Column="3" Width="6" BorderThickness="0 0 0.2 0">
+                
+                <!-- Underline -->
+                <Border.BorderBrush>
+                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                        <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                    </LinearGradientBrush>
+                </Border.BorderBrush>
+
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="1, 0.5" EndPoint="0, 0.5">
+                        <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+
+            <!-- Container with buttons for editing image -->
+            <Border Grid.Column="4" BorderThickness="1" BorderBrush="{StaticResource BackgroudLightBrush}" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        
+                        <!-- Draw rectangle button -->
+                        <RowDefinition Height="*"/>
+                        
+                        <!-- Draw circle button -->
+                        <RowDefinition Height="*"/>
+                        
+                        <!-- Draw line button -->
+                        <RowDefinition Height="*"/>
+                        
+                        <!-- Marker button -->
+                        <RowDefinition Height="*"/>
+                        
+                    </Grid.RowDefinitions>
+                    
+                    <!-- Draw rectangle button -->
+                    <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="40">
+                        <Image Source="../Images/ImagesForEditBar/Rectangle.png"/>
+                    </Button>
+
+                    <!-- Draw circle button -->
+                    <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="40">
+                        <Image Source="../Images/ImagesForEditBar/Circle.png"/>
+                    </Button>
+
+                    <!-- Draw line button -->
+                    <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="40">
+                        <Image Source="../Images/ImagesForEditBar/Line.png"/>
+                    </Button>
+
+                    <!-- Marker button -->
+                    <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="40">
+                        <Image Source="../Images/ImagesForEditBar/Marker.png"/>
+                    </Button>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Bottom Drop Shadow-->
+        <Border Grid.Row="1" Height="6" BorderThickness="0 0.2 0 0">
+
+            <!-- Underline -->
+            <Border.BorderBrush>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                </LinearGradientBrush>
+            </Border.BorderBrush>
+
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+        </Border>
+
+        <!-- The button bar with buttons -->
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                
+                <!-- Open left side menu button -->
+                <ColumnDefinition Width="2*"/>
+                
+                <!-- Copy button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Zoom in button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Zoom out button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Rotate left button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Rotate right button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Crop button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Open files button -->
+                <ColumnDefinition Width="*"/>
+                
+                <!-- Open right side menu button -->
+                <ColumnDefinition Width="2*"/>
+                
+            </Grid.ColumnDefinitions>
+
+            <!-- Open left side menu button -->
+            <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" Command="{Binding SwitchListVisibilityComand}"/>
+
+            <!-- Copy button-->
+            <Button Grid.Column="1" Style="{StaticResource Backgroundless}" x:Name="CopyButton" Click="CopyButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/Copy.png"/>
+            </Button>
+
+            <!-- Zoom in button-->
+            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Click="ZoomInButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/ZoomIn.png"/>
+            </Button>
+
+            <!-- Zoom out button-->
+            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Click="ZoomOutButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/ZoomOut.png"/>
+            </Button>
+
+            <!-- Rotate left button-->
+            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Click="RotateLeftButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/RotateLeft.png"/>
+            </Button>
+
+            <!-- Rotate right button-->
+            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Click="RotateRightButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/RotateRight.png"/>
+            </Button>
+
+            <!-- Crop button-->
+            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
+                <Image Source="/ImageViewer;component/Images/BottomBarImages/Scissors.png"/>
+            </Button>
+
+            <!-- Copy button-->
+            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
+
+            <!-- Open right side menu button-->
+            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityComand}"/>
+
+        </Grid>
+        
+    </Grid>
+</Page>
