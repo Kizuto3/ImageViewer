@@ -12,8 +12,8 @@
         xmlns:prism="http://prismlibrary.com/"
         xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
         prism:ViewModelLocator.AutoWireViewModel="True"
-        MinHeight="300"
-        MinWidth="300"
+        MinHeight="600"
+        MinWidth="800"
         Title="Welcome, friend!" Height="900" Width="1200">
 
     <Window.Resources>
@@ -102,7 +102,7 @@
 
                                         <!-- Icon -->
                                         <Button Grid.Column="2" Padding="6" Style="{StaticResource SystemIconButton}" x:Name="MenuButton" MouseUp="MenuButton_MouseUp">
-                                            <Image Source="../Images/Logo/logo-small.png"/>
+                                            <Image Source="{StaticResource LogoDrawingImage}"/>
                                         </Button>
 
                                     </Grid>

@@ -21,7 +21,7 @@
             <RowDefinition Height="Auto"/>
 
             <!-- The bottom bar with buttons -->
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="100"/>
 
         </Grid.RowDefinitions>
 
@@ -145,22 +145,22 @@
                     
                     <!-- Draw rectangle button -->
                     <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="40">
-                        <Image Source="../Images/ImagesForEditBar/Rectangle.png"/>
+                        <Image Source="{StaticResource RectangleDrawingImage}"/>
                     </Button>
 
                     <!-- Draw circle button -->
                     <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="40">
-                        <Image Source="../Images/ImagesForEditBar/Circle.png"/>
+                        <Image Source="{StaticResource CircleDrawingImage}"/>
                     </Button>
 
                     <!-- Draw line button -->
                     <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="40">
-                        <Image Source="../Images/ImagesForEditBar/Line.png"/>
+                        <Image Source="{StaticResource LineDrawingImage}"/>
                     </Button>
 
                     <!-- Marker button -->
                     <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="40">
-                        <Image Source="../Images/ImagesForEditBar/Marker.png"/>
+                        <Image Source="{StaticResource MarkerDrawingImage}"/>
                     </Button>
                 </Grid>
             </Border>
@@ -225,32 +225,32 @@
 
             <!-- Copy button-->
             <Button Grid.Column="1" Style="{StaticResource Backgroundless}" x:Name="CopyButton" Click="CopyButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/Copy.png"/>
+                <Image Source="{StaticResource CopyDrawingImage}"/>
             </Button>
 
             <!-- Zoom in button-->
             <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Click="ZoomInButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/ZoomIn.png"/>
+                <Image Source="{StaticResource ZoomInDrawingImage}"/>
             </Button>
 
             <!-- Zoom out button-->
             <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Click="ZoomOutButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/ZoomOut.png"/>
+                <Image Source="{StaticResource ZoomOutDrawingImage}"/>
             </Button>
 
             <!-- Rotate left button-->
             <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Click="RotateLeftButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/RotateLeft.png"/>
+                <Image Source="{StaticResource RotateLeftDrawingImage}"/>
             </Button>
 
             <!-- Rotate right button-->
             <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Click="RotateRightButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/RotateRight.png"/>
+                <Image Source="{StaticResource RotateRightDrawingImage}"/>
             </Button>
 
             <!-- Crop button-->
             <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
-                <Image Source="/ImageViewer;component/Images/BottomBarImages/Scissors.png"/>
+                <Image Source="{StaticResource ScissorsDrawingImage}"/>
             </Button>
 
             <!-- Copy button-->

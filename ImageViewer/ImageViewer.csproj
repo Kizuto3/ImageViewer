@@ -103,6 +103,10 @@
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Styles\Images.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -186,18 +190,7 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\BottomBarImages\Copy.png" />
-    <Resource Include="Images\BottomBarImages\RotateLeft.png" />
-    <Resource Include="Images\BottomBarImages\RotateRight.png" />
-    <Resource Include="Images\BottomBarImages\Scissors.png" />
-    <Resource Include="Images\BottomBarImages\ZoomIn.png" />
-    <Resource Include="Images\BottomBarImages\ZoomOut.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Images\Logo\logo-small.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Images\BottomBarImages\Copy.svg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\ImagesForEditBar\Circle.png" />
