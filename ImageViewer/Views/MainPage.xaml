@@ -52,7 +52,7 @@
                       BorderBrush="Transparent"
                       Visibility="{Binding IsListVisible, Converter={StaticResource BooleanToVisibilityConverter}}"  
                       FontSize="18" ItemsSource="{Binding Images}" 
-                      SelectedItem="{Binding ImageModel}">
+                      SelectedItem="{Binding CurrentImage}">
 
                 <ListView.View>
                     <GridView>
@@ -86,7 +86,7 @@
             </Border>
 
             <!-- Scrollviewer to make sure that image will fit in screen-->
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer MouseLeave="ScrollViewer_MouseLeave" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 
                 <!-- The image -->
                 <Image RenderTransformOrigin="0.5, 0.5" 
@@ -95,11 +95,14 @@
                    MouseUp="ImageView_MouseUp"
                    MouseMove="ImageView_MouseMove"
                    x:Name="ImageView"
-                   Source="{Binding ImageModel.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
-                    <Image.LayoutTransform>
-                        <TransformGroup/>
-                    </Image.LayoutTransform>
+                   Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
 
+                    <Image.LayoutTransform>
+                        <TransformGroup>
+                            <ScaleTransform ScaleX="{Binding CurrentImage.ScaleX}" ScaleY="{Binding CurrentImage.ScaleY}"/>
+                            <RotateTransform Angle="{Binding CurrentImage.Angle}"/>
+                        </TransformGroup>
+                    </Image.LayoutTransform>
                 </Image>
 
             </ScrollViewer>
@@ -208,7 +211,10 @@
                 
                 <!-- Rotate right button -->
                 <ColumnDefinition Width="*"/>
-                
+
+                <!-- Crop button -->
+                <ColumnDefinition Width="*"/>
+
                 <!-- Crop button -->
                 <ColumnDefinition Width="*"/>
                 
@@ -221,7 +227,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Open left side menu button -->
-            <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" Command="{Binding SwitchListVisibilityComand}"/>
+            <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" Command="{Binding SwitchListVisibilityCommand}"/>
 
             <!-- Copy button-->
             <Button Grid.Column="1" Style="{StaticResource Backgroundless}" x:Name="CopyButton" Click="CopyButton_Click">
@@ -229,35 +235,39 @@
             </Button>
 
             <!-- Zoom in button-->
-            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Click="ZoomInButton_Click">
+            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Command="{Binding ZoomInCommand}">
                 <Image Source="{StaticResource ZoomInDrawingImage}"/>
             </Button>
 
             <!-- Zoom out button-->
-            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Click="ZoomOutButton_Click">
+            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}">
                 <Image Source="{StaticResource ZoomOutDrawingImage}"/>
             </Button>
 
             <!-- Rotate left button-->
-            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Click="RotateLeftButton_Click">
+            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Command="{Binding RotateLeftCommand}">
                 <Image Source="{StaticResource RotateLeftDrawingImage}"/>
             </Button>
 
             <!-- Rotate right button-->
-            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Click="RotateRightButton_Click">
+            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Command="{Binding RotateRightCommand}">
                 <Image Source="{StaticResource RotateRightDrawingImage}"/>
             </Button>
 
+            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
+                <Image Source="{StaticResource SelectDrawingImage}"/>
+            </Button>
+            
             <!-- Crop button-->
-            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
+            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
                 <Image Source="{StaticResource ScissorsDrawingImage}"/>
             </Button>
 
             <!-- Copy button-->
-            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
+            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
 
             <!-- Open right side menu button-->
-            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityComand}"/>
+            <Button Grid.Column="9" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
 
         </Grid>
         

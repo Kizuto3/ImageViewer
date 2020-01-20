@@ -3,6 +3,9 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ImageViewer.ViewModels
 {
@@ -11,12 +14,18 @@ namespace ImageViewer.ViewModels
     /// </summary>
     class MainPageViewModel : BindableBase
     {
+        private const double ScaleIn = 1.1;
+
+        private const double ScaleOut = 0.9;
+
+        private const double RotationAngle = 90;
+
         #region Private Members
 
         /// <summary>
         /// Current image that user sees
         /// </summary>
-        private ImageModel _imageModel;
+        private ImageModel _currentImage;
 
         /// <summary>
         /// Defines if list is visible to user or not
@@ -28,6 +37,14 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private bool _isEditBarVisible;
 
+        private double _cropStartX;
+
+        private double _cropStartY;
+
+        private double _cropWidth;
+
+        private double _cropHeight;
+
         #endregion
 
         #region Public Properties
@@ -35,15 +52,15 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Current image that user sees
         /// </summary>
-        public ImageModel ImageModel
+        public ImageModel CurrentImage
         {
             get
             {
-                return _imageModel;
+                return _currentImage;
             }
             set
             {
-                SetProperty(ref _imageModel, value);
+                SetProperty(ref _currentImage, value);
             }
         }
 
@@ -77,6 +94,54 @@ namespace ImageViewer.ViewModels
             }
         }
 
+        public double CropStartX
+        {
+            get
+            {
+                return _cropStartX;
+            }
+            set
+            {
+                SetProperty(ref _cropStartX, value);
+            }
+        }
+
+        public double CropStartY
+        {
+            get
+            {
+                return _cropStartY;
+            }
+            set
+            {
+                SetProperty(ref _cropStartY, value);
+            }
+        }
+
+        public double CropWidth
+        {
+            get
+            {
+                return _cropWidth;
+            }
+            set
+            {
+                SetProperty(ref _cropWidth, value);
+            }
+        }
+
+        public double CropHeight
+        {
+            get
+            {
+                return _cropHeight;
+            }
+            set
+            {
+                SetProperty(ref _cropHeight, value);
+            }
+        }
+
         /// <summary>
         /// All images that user wants to watch
         /// </summary>
@@ -94,12 +159,37 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// The command that switches the visibility of the image list
         /// </summary>
-        public DelegateCommand SwitchListVisibilityComand { get; set; }
+        public DelegateCommand SwitchListVisibilityCommand { get; set; }
 
         /// <summary>
         /// The command that switches the visibility of the image list
         /// </summary>
-        public DelegateCommand SwitchEditBarVisibilityComand { get; set; }
+        public DelegateCommand SwitchEditBarVisibilityCommand { get; set; }
+
+        /// <summary>
+        /// The command to zoom image in
+        /// </summary>
+        public DelegateCommand ZoomInCommand { get; set; }
+
+        /// <summary>
+        /// The command to zoom image out
+        /// </summary>
+        public DelegateCommand ZoomOutCommand { get; set; }
+
+        /// <summary>
+        /// The command to rotate image left
+        /// </summary>
+        public DelegateCommand RotateLeftCommand { get; set; }
+
+        /// <summary>
+        /// The command to rotate image right
+        /// </summary>
+        public DelegateCommand RotateRightCommand { get; set; }
+
+        /// <summary>
+        /// The command to rotate image right
+        /// </summary>
+        public DelegateCommand PopCommand { get; set; }
 
         #endregion
 
@@ -110,10 +200,17 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public MainPageViewModel()
         {
-            _imageModel = new ImageModel();
+            _currentImage = new ImageModel();
+
             AddImagesCommand = new DelegateCommand(AddImages);
-            SwitchListVisibilityComand = new DelegateCommand(SwitchListVisibility);
-            SwitchEditBarVisibilityComand = new DelegateCommand(SwitchEditBarVisibility);
+            SwitchListVisibilityCommand = new DelegateCommand(SwitchListVisibility);
+            SwitchEditBarVisibilityCommand = new DelegateCommand(SwitchEditBarVisibility);
+            ZoomInCommand = new DelegateCommand(ZoomIn);
+            ZoomOutCommand = new DelegateCommand(ZoomOut);
+            RotateLeftCommand = new DelegateCommand(RotateLeft);
+            RotateRightCommand = new DelegateCommand(RotateRight);
+            PopCommand = new DelegateCommand(Pop);
+
             Images = new ObservableCollection<ImageModel>();
         }
 
@@ -154,6 +251,45 @@ namespace ImageViewer.ViewModels
         public void SwitchEditBarVisibility()
         {
             IsEditBarVisible = !IsEditBarVisible;
+        }
+
+        /// <summary>
+        /// Increases image scale by <see cref="ScaleIn"/> (1.1)
+        /// </summary>
+        public void ZoomIn()
+        {
+            CurrentImage.ScaleX *= ScaleIn;
+            CurrentImage.ScaleY *= ScaleIn;
+        }
+
+        /// <summary>
+        /// Increases image scale by <see cref="ScaleOut"/> (0.9)
+        /// </summary>
+        public void ZoomOut()
+        {
+            CurrentImage.ScaleX *= ScaleOut;
+            CurrentImage.ScaleY *= ScaleOut;
+        }
+
+        /// <summary>
+        /// Decreases image rotation angle by <see cref="RotationAngle"/> (90)
+        /// </summary>
+        public void RotateLeft()
+        {
+            CurrentImage.Angle -= RotationAngle;
+        }
+
+        /// <summary>
+        /// Increases image rotation angle by <see cref="RotationAngle"/> (90)
+        /// </summary>
+        public void RotateRight()
+        {
+            CurrentImage.Angle += RotationAngle;
+        }
+
+        public void Pop()
+        {
+            MessageBox.Show("Lalala");
         }
     }
 }

@@ -29,8 +29,10 @@ namespace ImageViewer.Adorners
         {
             base.OnRender(drawingContext);
 
-            SolidColorBrush renderBrush = new SolidColorBrush(Colors.Black);
-            renderBrush.Opacity = 0.2;
+            SolidColorBrush renderBrush = new SolidColorBrush(Colors.Black)
+            {
+                Opacity = 0.2
+            };
             Pen renderPen = new Pen(new SolidColorBrush(Colors.Black), 1.5);
 
             drawingContext.DrawRectangle(renderBrush, renderPen, Rect);

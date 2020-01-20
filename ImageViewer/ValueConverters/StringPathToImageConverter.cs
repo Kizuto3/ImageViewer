@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Windows.Media.Imaging;
 
 namespace ImageViewer.ValueConverters
@@ -24,8 +25,23 @@ namespace ImageViewer.ValueConverters
 
                 return image;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                using (var writer = new StreamWriter("D:\\ErrorLog.txt", true))
+                {
+                    writer.WriteLine("-----------------------------------------------------------------------------");
+                    writer.WriteLine("Date : " + DateTime.Now.ToString());
+                    writer.WriteLine();
+
+                    while (ex != null)
+                    {
+                        writer.WriteLine(ex.GetType().FullName);
+                        writer.WriteLine("Message : " + ex.Message);
+                        writer.WriteLine("StackTrace : " + ex.StackTrace);
+
+                        ex = ex.InnerException;
+                    }
+                }
                 return null;
             }
             

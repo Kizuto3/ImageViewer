@@ -1,10 +1,10 @@
 ﻿using ImageViewer.Adorners;
 using ImageViewer.ViewModels;
 using System;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -18,24 +18,14 @@ namespace ImageViewer.Views
         #region Private Members
 
         /// <summary>
-        /// Scale coefficient to multiply by when zoom in image
-        /// </summary>
-        private const double ZoomInCoef = 1.1;
-
-        /// <summary>
-        /// Scale coefficient to divide by when zoom in image
-        /// </summary>
-        private const double ZoomOutCoef = 0.9;
-
-        /// <summary>
-        /// Rotation Angle
-        /// </summary>
-        private const int RotationAngle = 90;
-
-        /// <summary>
         /// Defines if mouse is clicked and moving at the same time
         /// </summary>
         private bool _isMouseMove;
+
+        /// <summary>
+        /// Defines the ability to select an area of an image to crop
+        /// </summary>
+        private bool _canSelectArea;
 
         /// <summary>
         /// Start point to draw a rectangle on image
@@ -64,158 +54,6 @@ namespace ImageViewer.Views
             InitializeComponent();
             DataContext = new MainPageViewModel();
         }
-
-        #region Zoom methods
-
-        /// <summary>
-        /// Zoom in an image transform group and scale transform
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ZoomInButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create an instance of image transform group object
-            var transformGroup = ImageView.LayoutTransform as TransformGroup;
-
-            // Find first ScaleTransform child in transform group
-            var scaleTransform = transformGroup.Children.FirstOrDefault(child => child is ScaleTransform) as ScaleTransform;
-
-            // If there is not a ScaleTransform child
-            if (scaleTransform == null)
-            {
-                // Create an instance of ScaleTransform object
-                var imageScaleTransform = new ScaleTransform
-                {
-                    // Zoom in an image
-                    ScaleX = 1.0 * ZoomInCoef,
-                    ScaleY = 1.0 * ZoomInCoef
-                };
-
-                // Add ScaleTransform object to transform group
-                transformGroup.Children.Add(imageScaleTransform);
-            }
-
-            //If there is a ScaleTransform child
-            else
-            {
-                // Change it`s X and Y values to zoom in an image
-                scaleTransform.ScaleX *= ZoomInCoef;
-                scaleTransform.ScaleY *= ZoomInCoef;
-            }
-        }
-
-        /// <summary>
-        /// Zoom out an image using transform group and scale transform
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ZoomOutButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create an instance of image transform group object
-            var transformGroup = ImageView.LayoutTransform as TransformGroup;
-
-            // Find first ScaleTransform child in transform group
-            var scaleTransform = transformGroup.Children.FirstOrDefault(child => child is ScaleTransform) as ScaleTransform;
-
-            // If there is not a ScaleTransform child
-            if (scaleTransform == null)
-            {
-                // Create an instance of ScaleTransform object
-                var imageScaleTransform = new ScaleTransform
-                {
-                    // Zoom out an image
-                    ScaleX = 1.0 * ZoomOutCoef,
-                    ScaleY = 1.0 * ZoomOutCoef
-                };
-
-                // Add ScaleTransform object to transform group
-                transformGroup.Children.Add(imageScaleTransform);
-            }
-
-            //If there is a ScaleTransform child
-            else
-            {
-                // Change it`s X and Y values to zoom out an image
-                scaleTransform.ScaleX *= ZoomOutCoef;
-                scaleTransform.ScaleY *= ZoomOutCoef;
-            }
-        }
-
-        #endregion
-
-        #region Rotate methods
-
-        /// <summary>
-        /// Rotate left an image using transform group and layout transform
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RotateLeftButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create an instance of image transform group object
-            var transformGroup = ImageView.LayoutTransform as TransformGroup;
-
-            // Find first RotateTransform child in transform group
-            var rotateTransform = transformGroup.Children.FirstOrDefault(child => child is RotateTransform) as RotateTransform;
-
-            // If there is not a RotateTransform child
-            if (rotateTransform == null)
-            {
-                // Create an instance of RotateTransform object
-                var imageRotateTransform = new RotateTransform
-                {
-                    //Rotate an image to the left
-                    Angle = -RotationAngle
-                };
-
-                // Add RotateTransform object to transform group
-                transformGroup.Children.Add(imageRotateTransform);
-            }
-
-            // If there is a RotateTransform child
-            else
-            {
-                // Change it`s Angle value to rotate an image to the left
-                rotateTransform.Angle -= RotationAngle;
-            }
-        }
-
-        /// <summary>
-        /// Rotate right an image using transform group and layout transform
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void RotateRightButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Create an instance of image transform group object
-            var transformGroup = ImageView.LayoutTransform as TransformGroup;
-
-            // Find first RotateTransform child in transform group
-            var rotateTransform = transformGroup.Children.FirstOrDefault(child => child is RotateTransform) as RotateTransform;
-
-            // If there is not a RotateTransform child
-            if (rotateTransform == null)
-            {
-                // Create an instance of RotateTransform object
-                var imageRotateTransform = new RotateTransform
-                {
-                    //Rotate an image to the right
-                    Angle = RotationAngle
-                };
-
-                // Add RotateTransform object to transform group
-                transformGroup.Children.Add(imageRotateTransform);
-            }
-
-            // If there is a RotateTransform child
-            else
-            {
-                // Change it`s Angle value to rotate an image to the right
-                rotateTransform.Angle += RotationAngle;
-            }
-        }
-
-        #endregion
 
         /// <summary>
         /// Allows to copy an image to user`s clipboard
@@ -246,15 +84,17 @@ namespace ImageViewer.Views
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void CropButton_Click(object sender, RoutedEventArgs e)
-        {   
-            //Clip an image using RectangleGeometry. 
-            ImageView.Clip = new RectangleGeometry(_adorner.Rect);
+        {   if(_adorner != null)
+            {
+                //Clip an image using RectangleGeometry. 
+                ImageView.Clip = new RectangleGeometry(_adorner.Rect);
 
-            //Remove the adorner on image
-            _layer.Remove(_adorner);
+                //Remove the adorner on image
+                _layer.Remove(_adorner);
 
-            //And set adorner to null
-            _adorner = null;
+                //And set adorner to null
+                _adorner = null;
+            }
         }
 
         /// <summary>
@@ -262,7 +102,7 @@ namespace ImageViewer.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void CropButton_MouseRightButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void CropButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Set Clip value to null to restore an actual image
             ImageView.Clip = null;
@@ -277,7 +117,7 @@ namespace ImageViewer.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImageView_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ImageView_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Mouse is clicked
             _isMouseMove = true;
@@ -291,7 +131,7 @@ namespace ImageViewer.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImageView_MouseUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ImageView_MouseUp(object sender, MouseButtonEventArgs e)
         {
             //Mouse is no longer clicked
             _isMouseMove = false;
@@ -302,10 +142,10 @@ namespace ImageViewer.Views
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void ImageView_MouseMove(object sender, System.Windows.Input.MouseEventArgs e)
+        private void ImageView_MouseMove(object sender, MouseEventArgs e)
         {
             //If mouse is clicked and moving at the same time
-            if (_isMouseMove)
+            if (_isMouseMove && _canSelectArea)
             {
                 //Set the end point of adorner`s rectangle 
                 _endPoint = e.GetPosition(ImageView);
@@ -353,5 +193,31 @@ namespace ImageViewer.Views
         }
 
         #endregion
+
+        /// <summary>
+        /// if mouse leaves the scrollViewer area disable ability to select area to crop
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ScrollViewer_MouseLeave(object sender, MouseEventArgs e)
+        {
+            _isMouseMove = false;
+        }
+
+        /// <summary>
+        /// Adds or removes ability to select an area of an image to crop and changes the cursor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SelectAreaButton_Click(object sender, RoutedEventArgs e)
+        {
+            _canSelectArea = !_canSelectArea;
+            ImageView.Cursor = ImageView.Cursor == Cursors.Hand ? Cursors.Arrow : Cursors.Hand;
+            if(_adorner != null)
+            {
+                _layer.Remove(_adorner);
+                _adorner = null;
+            }
+        }
     }
 }

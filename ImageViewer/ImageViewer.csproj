@@ -92,6 +92,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AttachedProperties\MouseBehaviour.cs" />
     <Compile Include="Models\ApplicationPage.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Adorners\RectAdorner.cs" />
@@ -189,15 +190,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\Logo\logo-small.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Images\ImagesForEditBar\Circle.png" />
-    <Resource Include="Images\ImagesForEditBar\Line.png" />
-    <Resource Include="Images\ImagesForEditBar\Marker.png" />
-    <Resource Include="Images\ImagesForEditBar\Rectangle.png" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\Fody.6.0.6\build\Fody.targets" Condition="Exists('..\packages\Fody.6.0.6\build\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

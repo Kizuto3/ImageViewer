@@ -34,7 +34,7 @@
             </Trigger>
         </Style.Triggers>
     </Style>
-    
+
     <!-- System icon button -->
     <Style TargetType="{x:Type Button}" x:Key="SystemIconButton" BasedOn="{StaticResource Hoverless}">
         <Setter Property="WindowChrome.IsHitTestVisibleInChrome" Value="True"/>
