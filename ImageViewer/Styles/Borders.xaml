@@ -1,0 +1,78 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ImageViewer.Styles">
+
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Colors.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    
+    <!-- Horizontal dropshadow -->
+    <Style TargetType="{x:Type Border}" x:Key="HorizontalDropShadow">
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="BorderThickness" Value="0 0.2 0 0"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Vertical dropshadow -->
+    <Style TargetType="{x:Type Border}" x:Key="VerticalDropShadow">
+        <Setter Property="Width" Value="6"/>
+        <Setter Property="BorderThickness" Value="0.2 0 0 0"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Reversed vertical dropshadow -->
+    <Style TargetType="{x:Type Border}" x:Key="VerticalDropshadowReversed">
+        <Setter Property="Width" Value="6"/>
+        <Setter Property="BorderThickness" Value="0 0 0.2 0"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="1, 0" EndPoint="0, 0">
+                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

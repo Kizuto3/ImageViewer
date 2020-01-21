@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:ImageViewer.Views"
       xmlns:prism="http://prismlibrary.com/"
+      xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
       xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
       prism:ViewModelLocator.AutoWireViewModel="True"
       mc:Ignorable="d" 
@@ -52,38 +53,22 @@
                       BorderBrush="Transparent"
                       Visibility="{Binding IsListVisible, Converter={StaticResource BooleanToVisibilityConverter}}"  
                       FontSize="18" ItemsSource="{Binding Images}" 
-                      SelectedItem="{Binding CurrentImage}">
+                      SelectedItem="{Binding CurrentImage}"
+                      SelectionChanged="ListView_SelectionChanged">
 
                 <ListView.View>
                     <GridView>
                         
                         <!-- Displays image file name -->
-                        <GridViewColumn Width="148" Header="Images" DisplayMemberBinding="{Binding FileName}"></GridViewColumn>
-                    
+                        <GridViewColumn Width="148" Header="Images" DisplayMemberBinding="{Binding FileName}"/>
+
                     </GridView>
                 </ListView.View>
                 
             </ListView>
 
             <!-- Left drop shadow -->
-            <Border Grid.Column="1" Width="6" BorderThickness="0.2 0 0 0">
-                <!-- Underline -->
-                <Border.BorderBrush>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
-                        <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.BorderBrush>
-
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="0, 0.5" EndPoint="1, 0.5">
-                        <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-                
-            </Border>
+            <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
 
             <!-- Scrollviewer to make sure that image will fit in screen-->
             <ScrollViewer MouseLeave="ScrollViewer_MouseLeave" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
@@ -94,7 +79,10 @@
                    MouseDown="ImageView_MouseDown"
                    MouseUp="ImageView_MouseUp"
                    MouseMove="ImageView_MouseMove"
-                   x:Name="ImageView"
+                   attachedPropetries:SizeObserver.Observe="True"
+                   attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
+                   attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
+                   x:Name="CurrentImage"
                    Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
 
                     <Image.LayoutTransform>
@@ -103,29 +91,13 @@
                             <RotateTransform Angle="{Binding CurrentImage.Angle}"/>
                         </TransformGroup>
                     </Image.LayoutTransform>
+                    
                 </Image>
 
             </ScrollViewer>
 
             <!-- Right side drop shadow -->
-            <Border Grid.Column="3" Width="6" BorderThickness="0 0 0.2 0">
-                
-                <!-- Underline -->
-                <Border.BorderBrush>
-                    <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                        <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
-                    </LinearGradientBrush>
-                </Border.BorderBrush>
-
-                <Border.Background>
-                    <LinearGradientBrush StartPoint="1, 0.5" EndPoint="0, 0.5">
-                        <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
-                        <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                    </LinearGradientBrush>
-                </Border.Background>
-            </Border>
+            <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
 
             <!-- Container with buttons for editing image -->
             <Border Grid.Column="4" BorderThickness="1" BorderBrush="{StaticResource BackgroudLightBrush}" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -170,60 +142,42 @@
         </Grid>
 
         <!-- Bottom Drop Shadow-->
-        <Border Grid.Row="1" Height="6" BorderThickness="0 0.2 0 0">
-
-            <!-- Underline -->
-            <Border.BorderBrush>
-                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
-                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
-                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
-                </LinearGradientBrush>
-            </Border.BorderBrush>
-
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0, 0" EndPoint="0, 1">
-                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
-                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
-
-        </Border>
+        <Border Grid.Row="1" Height="6" BorderThickness="0 0.2 0 0" Style="{StaticResource HorizontalDropShadow}"/>
 
         <!-- The button bar with buttons -->
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
-                
+
                 <!-- Open left side menu button -->
                 <ColumnDefinition Width="2*"/>
-                
+
                 <!-- Copy button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Zoom in button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Zoom out button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Rotate left button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Rotate right button -->
                 <ColumnDefinition Width="*"/>
 
-                <!-- Crop button -->
+                <!-- Select area button -->
                 <ColumnDefinition Width="*"/>
 
                 <!-- Crop button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Open files button -->
                 <ColumnDefinition Width="*"/>
-                
+
                 <!-- Open right side menu button -->
                 <ColumnDefinition Width="2*"/>
-                
+
             </Grid.ColumnDefinitions>
 
             <!-- Open left side menu button -->
@@ -254,10 +208,11 @@
                 <Image Source="{StaticResource RotateRightDrawingImage}"/>
             </Button>
 
+            <!-- Select area button -->
             <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
                 <Image Source="{StaticResource SelectDrawingImage}"/>
             </Button>
-            
+
             <!-- Crop button-->
             <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
                 <Image Source="{StaticResource ScissorsDrawingImage}"/>
@@ -270,6 +225,5 @@
             <Button Grid.Column="9" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
 
         </Grid>
-        
     </Grid>
 </Page>

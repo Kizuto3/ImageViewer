@@ -62,18 +62,21 @@ namespace ImageViewer.Views
         /// <param name="e"></param>
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            double width = ImageView.ActualWidth;
-            double height = ImageView.ActualHeight;
-            RenderTargetBitmap bmpCopied = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), 96, 96, PixelFormats.Default);
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
+            double width = CurrentImage.ActualWidth;
+            double height = CurrentImage.ActualHeight;
+            if(width > 0 && height > 0)
             {
-                VisualBrush vb = new VisualBrush(ImageView);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(width, height)));
-            }
-            bmpCopied.Render(dv);
-            Clipboard.SetImage(bmpCopied);
-            MessageBox.Show("Sended to clipboard");
+                RenderTargetBitmap bmpCopied = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), 96, 96, PixelFormats.Default);
+                DrawingVisual dv = new DrawingVisual();
+                using (DrawingContext dc = dv.RenderOpen())
+                {
+                    VisualBrush vb = new VisualBrush(CurrentImage);
+                    dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(width, height)));
+                }
+                bmpCopied.Render(dv);
+                Clipboard.SetImage(bmpCopied);
+                MessageBox.Show("Sended to clipboard " + width + " " + height);
+            }           
         }
 
         #region Crop Methods
@@ -87,7 +90,7 @@ namespace ImageViewer.Views
         {   if(_adorner != null)
             {
                 //Clip an image using RectangleGeometry. 
-                ImageView.Clip = new RectangleGeometry(_adorner.Rect);
+                CurrentImage.Clip = new RectangleGeometry(_adorner.Rect);
 
                 //Remove the adorner on image
                 _layer.Remove(_adorner);
@@ -105,7 +108,7 @@ namespace ImageViewer.Views
         private void CropButton_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             //Set Clip value to null to restore an actual image
-            ImageView.Clip = null;
+            CurrentImage.Clip = null;
         }
 
         #endregion
@@ -123,7 +126,7 @@ namespace ImageViewer.Views
             _isMouseMove = true;
 
             //Set the start point of a adorner`s rectangle 
-            _startPoint = e.GetPosition(ImageView);
+            _startPoint = e.GetPosition(CurrentImage);
         }
 
         /// <summary>
@@ -148,7 +151,7 @@ namespace ImageViewer.Views
             if (_isMouseMove && _canSelectArea)
             {
                 //Set the end point of adorner`s rectangle 
-                _endPoint = e.GetPosition(ImageView);
+                _endPoint = e.GetPosition(CurrentImage);
 
                 //Create a new instance of Rect object
                 var rect = new Rect()
@@ -163,7 +166,7 @@ namespace ImageViewer.Views
                 if(_layer == null)
 
                     //Get the image`s adorner layer
-                    _layer = AdornerLayer.GetAdornerLayer(ImageView);
+                    _layer = AdornerLayer.GetAdornerLayer(CurrentImage);
 
                 //If adorner was created
                 if (_adorner != null)
@@ -179,7 +182,7 @@ namespace ImageViewer.Views
                 else
                 {
                     //Create a new instance of RectAdorner object
-                    _adorner = new RectAdorner(ImageView, rect);
+                    _adorner = new RectAdorner(CurrentImage, rect);
 
                     //Set it`s mouse event handlers
                     _adorner.MouseUp += ImageView_MouseUp;
@@ -212,12 +215,22 @@ namespace ImageViewer.Views
         private void SelectAreaButton_Click(object sender, RoutedEventArgs e)
         {
             _canSelectArea = !_canSelectArea;
-            ImageView.Cursor = ImageView.Cursor == Cursors.Hand ? Cursors.Arrow : Cursors.Hand;
+            CurrentImage.Cursor = CurrentImage.Cursor == Cursors.Hand ? Cursors.Arrow : Cursors.Hand;
             if(_adorner != null)
             {
                 _layer.Remove(_adorner);
                 _adorner = null;
             }
+        }
+
+        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_adorner != null && _layer != null)
+            {
+                _layer.Remove(_adorner);
+                _adorner = null;
+            }
+            CurrentImage.Clip = null;
         }
     }
 }

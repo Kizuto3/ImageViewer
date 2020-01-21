@@ -4,8 +4,9 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System;
+using System.Windows.Media.Imaging;
+using System.Windows.Media;
 
 namespace ImageViewer.ViewModels
 {
@@ -36,14 +37,6 @@ namespace ImageViewer.ViewModels
         /// Defines if edit bar is visible to user or not
         /// </summary>
         private bool _isEditBarVisible;
-
-        private double _cropStartX;
-
-        private double _cropStartY;
-
-        private double _cropWidth;
-
-        private double _cropHeight;
 
         #endregion
 
@@ -94,54 +87,6 @@ namespace ImageViewer.ViewModels
             }
         }
 
-        public double CropStartX
-        {
-            get
-            {
-                return _cropStartX;
-            }
-            set
-            {
-                SetProperty(ref _cropStartX, value);
-            }
-        }
-
-        public double CropStartY
-        {
-            get
-            {
-                return _cropStartY;
-            }
-            set
-            {
-                SetProperty(ref _cropStartY, value);
-            }
-        }
-
-        public double CropWidth
-        {
-            get
-            {
-                return _cropWidth;
-            }
-            set
-            {
-                SetProperty(ref _cropWidth, value);
-            }
-        }
-
-        public double CropHeight
-        {
-            get
-            {
-                return _cropHeight;
-            }
-            set
-            {
-                SetProperty(ref _cropHeight, value);
-            }
-        }
-
         /// <summary>
         /// All images that user wants to watch
         /// </summary>
@@ -187,9 +132,9 @@ namespace ImageViewer.ViewModels
         public DelegateCommand RotateRightCommand { get; set; }
 
         /// <summary>
-        /// The command to rotate image right
+        /// Temp
         /// </summary>
-        public DelegateCommand PopCommand { get; set; }
+        public DelegateCommand CopyCommand { get; set; }
 
         #endregion
 
@@ -209,7 +154,7 @@ namespace ImageViewer.ViewModels
             ZoomOutCommand = new DelegateCommand(ZoomOut);
             RotateLeftCommand = new DelegateCommand(RotateLeft);
             RotateRightCommand = new DelegateCommand(RotateRight);
-            PopCommand = new DelegateCommand(Pop);
+            CopyCommand = new DelegateCommand(Copy);
 
             Images = new ObservableCollection<ImageModel>();
         }
@@ -287,9 +232,9 @@ namespace ImageViewer.ViewModels
             CurrentImage.Angle += RotationAngle;
         }
 
-        public void Pop()
+        public void Copy()
         {
-            MessageBox.Show("Lalala");
+            MessageBox.Show(CurrentImage.Width + " " + CurrentImage.Height);
         }
     }
 }

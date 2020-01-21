@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Windows;
 
 namespace ImageViewer.Models
 {
@@ -10,24 +11,34 @@ namespace ImageViewer.Models
         #region Private Members
 
         /// <summary>
-        /// Full path to image 
+        /// Full path to an image 
         /// </summary>
         private string _fullPath;
 
         /// <summary>
-        /// Scale of image
+        /// Scale of an image
         /// </summary>
         private double _scaleX;
 
         /// <summary>
-        /// Scale of image
+        /// Scale of an image
         /// </summary>
         private double _scaleY;
 
         /// <summary>
-        /// Rotation angle of image
+        /// Rotation angle of an image
         /// </summary>
         private double _angle;
+
+        /// <summary>
+        /// Actual width of an image
+        /// </summary>
+        private double _width;
+
+        /// <summary>
+        /// Actual height of an image
+        /// </summary>
+        private double _height;
 
         #endregion
 
@@ -94,6 +105,36 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
+        /// Actual width of an image
+        /// </summary>
+        public double Width
+        {
+            get
+            {
+                return _width;
+            }
+            set
+            {
+                SetProperty(ref _width, value);
+            }
+        }
+
+        /// <summary>
+        /// Actual height of an image
+        /// </summary>
+        public double Height
+        {
+            get
+            {
+                return _height;
+            }
+            set
+            {
+                SetProperty(ref _height, value);
+            }
+        }
+
+        /// <summary>
         /// File name of the image
         /// </summary>
         public string FileName
@@ -144,7 +185,7 @@ namespace ImageViewer.Models
                 // And compare their paths
                 return FullPath.Equals(image1.FullPath);
             }
-            catch(Exception)
+            catch(InvalidCastException)
             {
                 //Otherwise compare by references
                 return base.Equals(obj);

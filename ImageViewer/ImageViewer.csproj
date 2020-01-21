@@ -93,6 +93,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AttachedProperties\MouseBehaviour.cs" />
+    <Compile Include="AttachedProperties\SizeObserver.cs" />
     <Compile Include="Models\ApplicationPage.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Adorners\RectAdorner.cs" />
@@ -104,6 +105,10 @@
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Styles\Borders.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\Images.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

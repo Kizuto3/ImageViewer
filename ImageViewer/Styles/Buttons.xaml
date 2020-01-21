@@ -32,6 +32,9 @@
             <Trigger Property="IsMouseOver" Value="True">
                 <Setter Property="Background" Value="{StaticResource BackgroudLightBrush}"/>
             </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter Property="Background" Value="{StaticResource ForegroundDarkBrush}"/>
+            </Trigger>
         </Style.Triggers>
     </Style>
 
