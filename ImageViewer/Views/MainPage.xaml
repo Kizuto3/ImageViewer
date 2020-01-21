@@ -100,7 +100,7 @@
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
 
             <!-- Container with buttons for editing image -->
-            <Border Grid.Column="4" BorderThickness="1" BorderBrush="{StaticResource BackgroudLightBrush}" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Grid.Column="4" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         
@@ -142,7 +142,7 @@
         </Grid>
 
         <!-- Bottom Drop Shadow-->
-        <Border Grid.Row="1" Height="6" BorderThickness="0 0.2 0 0" Style="{StaticResource HorizontalDropShadow}"/>
+        <Border Grid.Row="1" Style="{StaticResource HorizontalDropShadowReversed}"/>
 
         <!-- The button bar with buttons -->
         <Grid Grid.Row="2">
@@ -152,6 +152,9 @@
                 <ColumnDefinition Width="2*"/>
 
                 <!-- Copy button -->
+                <ColumnDefinition Width="*"/>
+
+                <!-- Save button -->
                 <ColumnDefinition Width="*"/>
 
                 <!-- Zoom in button -->
@@ -188,41 +191,45 @@
                 <Image Source="{StaticResource CopyDrawingImage}"/>
             </Button>
 
+            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="SaveButton" Click="SaveButton_Click">
+                <Image Source="{StaticResource SaveImageDrawingImage}"/>
+            </Button>
+
             <!-- Zoom in button-->
-            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Command="{Binding ZoomInCommand}">
+            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Command="{Binding ZoomInCommand}">
                 <Image Source="{StaticResource ZoomInDrawingImage}"/>
             </Button>
 
             <!-- Zoom out button-->
-            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}">
+            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}">
                 <Image Source="{StaticResource ZoomOutDrawingImage}"/>
             </Button>
 
             <!-- Rotate left button-->
-            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Command="{Binding RotateLeftCommand}">
+            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Command="{Binding RotateLeftCommand}">
                 <Image Source="{StaticResource RotateLeftDrawingImage}"/>
             </Button>
 
             <!-- Rotate right button-->
-            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Command="{Binding RotateRightCommand}">
+            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Command="{Binding RotateRightCommand}">
                 <Image Source="{StaticResource RotateRightDrawingImage}"/>
             </Button>
 
             <!-- Select area button -->
-            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
+            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
                 <Image Source="{StaticResource SelectDrawingImage}"/>
             </Button>
 
             <!-- Crop button-->
-            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
+            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
                 <Image Source="{StaticResource ScissorsDrawingImage}"/>
             </Button>
 
             <!-- Copy button-->
-            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
+            <Button Grid.Column="9" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
 
             <!-- Open right side menu button-->
-            <Button Grid.Column="9" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
+            <Button Grid.Column="10" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
 
         </Grid>
     </Grid>

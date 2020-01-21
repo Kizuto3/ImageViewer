@@ -1,6 +1,8 @@
 ﻿using ImageViewer.Adorners;
 using ImageViewer.ViewModels;
+using Microsoft.Win32;
 using System;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -62,21 +64,12 @@ namespace ImageViewer.Views
         /// <param name="e"></param>
         private void CopyButton_Click(object sender, RoutedEventArgs e)
         {
-            double width = CurrentImage.ActualWidth;
-            double height = CurrentImage.ActualHeight;
-            if(width > 0 && height > 0)
+            var bmpCopied = ImageToRTB(CurrentImage);
+            if(bmpCopied != null)
             {
-                RenderTargetBitmap bmpCopied = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), 96, 96, PixelFormats.Default);
-                DrawingVisual dv = new DrawingVisual();
-                using (DrawingContext dc = dv.RenderOpen())
-                {
-                    VisualBrush vb = new VisualBrush(CurrentImage);
-                    dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(width, height)));
-                }
-                bmpCopied.Render(dv);
                 Clipboard.SetImage(bmpCopied);
-                MessageBox.Show("Sended to clipboard " + width + " " + height);
-            }           
+                MessageBox.Show("Sended to clipboard");
+            }      
         }
 
         #region Crop Methods
@@ -94,9 +87,6 @@ namespace ImageViewer.Views
 
                 //Remove the adorner on image
                 _layer.Remove(_adorner);
-
-                //And set adorner to null
-                _adorner = null;
             }
         }
 
@@ -219,7 +209,6 @@ namespace ImageViewer.Views
             if(_adorner != null)
             {
                 _layer.Remove(_adorner);
-                _adorner = null;
             }
         }
 
@@ -228,9 +217,48 @@ namespace ImageViewer.Views
             if (_adorner != null && _layer != null)
             {
                 _layer.Remove(_adorner);
-                _adorner = null;
             }
             CurrentImage.Clip = null;
+        }
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var bmpCopied = ImageToRTB(CurrentImage);
+
+            if(bmpCopied != null)
+            {
+                var saveFileDialog = new SaveFileDialog()
+                {
+                    Filter = "Image File (*.jpg; *.jpeg; *.gif; *.bmp; *png)| *.jpg; *.jpeg; *.gif; *.bmp; *png"
+                };
+                if (saveFileDialog.ShowDialog() == true)
+                {
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bmpCopied));
+                    using (FileStream stream = new FileStream(saveFileDialog.FileName, FileMode.Create))
+                        encoder.Save(stream);
+                }
+            }
+        }
+
+        private RenderTargetBitmap ImageToRTB(Image image)
+        {
+            double width = image.ActualWidth;
+            double height = image.ActualHeight;
+            RenderTargetBitmap bmpCopied = null;
+
+            if (width > 0 && height > 0)
+            {
+                bmpCopied = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), 96, 96, PixelFormats.Default);
+                DrawingVisual dv = new DrawingVisual();
+                using (DrawingContext dc = dv.RenderOpen())
+                {
+                    VisualBrush vb = new VisualBrush(CurrentImage);
+                    dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(width, height)));
+                }
+                bmpCopied.Render(dv);
+            }
+            return bmpCopied;
         }
     }
 }

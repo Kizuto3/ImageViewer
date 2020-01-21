@@ -29,6 +29,29 @@
         </Setter>
     </Style>
 
+    <!-- Reversed horizontal dropshadow -->
+    <Style TargetType="{x:Type Border}" x:Key="HorizontalDropShadowReversed">
+        <Setter Property="Height" Value="6"/>
+        <Setter Property="BorderThickness" Value="0 0 0 0.2"/>
+        <Setter Property="BorderBrush">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 0" EndPoint="1, 0">
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundMain}" Offset="0.5"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0, 1" EndPoint="0, 0">
+                    <GradientStop Color="{StaticResource BackgroudVeryLight}" Offset="0"/>
+                    <GradientStop Color="{StaticResource ForegroundLight}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <!-- Vertical dropshadow -->
     <Style TargetType="{x:Type Border}" x:Key="VerticalDropShadow">
         <Setter Property="Width" Value="6"/>
