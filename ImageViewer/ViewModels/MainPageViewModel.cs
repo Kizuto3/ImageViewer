@@ -131,11 +131,6 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public DelegateCommand RotateRightCommand { get; set; }
 
-        /// <summary>
-        /// Temp
-        /// </summary>
-        public DelegateCommand CopyCommand { get; set; }
-
         #endregion
 
         #region Constructors
@@ -154,7 +149,6 @@ namespace ImageViewer.ViewModels
             ZoomOutCommand = new DelegateCommand(ZoomOut);
             RotateLeftCommand = new DelegateCommand(RotateLeft);
             RotateRightCommand = new DelegateCommand(RotateRight);
-            CopyCommand = new DelegateCommand(Copy);
 
             Images = new ObservableCollection<ImageModel>();
         }
@@ -230,11 +224,6 @@ namespace ImageViewer.ViewModels
         public void RotateRight()
         {
             CurrentImage.Angle += RotationAngle;
-        }
-
-        public void Copy()
-        {
-            MessageBox.Show(CurrentImage.Width + " " + CurrentImage.Height);
         }
     }
 }

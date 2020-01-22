@@ -212,15 +212,11 @@ namespace ImageViewer.Views
             }
         }
 
-        private void ListView_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (_adorner != null && _layer != null)
-            {
-                _layer.Remove(_adorner);
-            }
-            CurrentImage.Clip = null;
-        }
-
+        /// <summary>
+        /// Opens save file dialog and allows to save image
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void SaveButton_Click(object sender, RoutedEventArgs e)
         {
             var bmpCopied = ImageToRTB(CurrentImage);
@@ -241,6 +237,11 @@ namespace ImageViewer.Views
             }
         }
 
+        /// <summary>
+        /// Converts image to RenderTargetBitmap
+        /// </summary>
+        /// <param name="image"></param>
+        /// <returns></returns>
         private RenderTargetBitmap ImageToRTB(Image image)
         {
             double width = image.ActualWidth;

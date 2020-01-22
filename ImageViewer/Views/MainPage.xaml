@@ -6,6 +6,7 @@
       xmlns:local="clr-namespace:ImageViewer.Views"
       xmlns:prism="http://prismlibrary.com/"
       xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
+      xmlns:userControls="clr-namespace:ImageViewer.Views.UserControls"
       xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
       prism:ViewModelLocator.AutoWireViewModel="True"
       mc:Ignorable="d" 
@@ -48,24 +49,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Image List -->
-            <ListView Grid.Column="0" 
-                      Background="Transparent"
-                      BorderBrush="Transparent"
-                      Visibility="{Binding IsListVisible, Converter={StaticResource BooleanToVisibilityConverter}}"  
-                      FontSize="18" ItemsSource="{Binding Images}" 
-                      SelectedItem="{Binding CurrentImage}"
-                      SelectionChanged="ListView_SelectionChanged">
-
-                <ListView.View>
-                    <GridView>
-                        
-                        <!-- Displays image file name -->
-                        <GridViewColumn Width="148" Header="Images" DisplayMemberBinding="{Binding FileName}"/>
-
-                    </GridView>
-                </ListView.View>
-                
-            </ListView>
+            <userControls:ImageListControl Grid.Column="0" Visibility="{Binding IsListVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
             <!-- Left drop shadow -->
             <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
@@ -100,7 +84,7 @@
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
 
             <!-- Container with buttons for editing image -->
-            <Border Grid.Column="4" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
+            <Border Width="200" Grid.Column="4" Visibility="{Binding IsEditBarVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <Grid>
                     <Grid.RowDefinitions>
                         

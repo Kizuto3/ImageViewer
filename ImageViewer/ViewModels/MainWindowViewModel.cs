@@ -1,4 +1,4 @@
-﻿using ImageViewer.Models;
+﻿using ImageViewer.Abstractions;
 using Prism.Mvvm;
 
 namespace ImageViewer.ViewModels

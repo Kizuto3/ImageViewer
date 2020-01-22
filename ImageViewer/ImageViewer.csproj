@@ -94,9 +94,12 @@
     </ApplicationDefinition>
     <Compile Include="AttachedProperties\MouseBehaviour.cs" />
     <Compile Include="AttachedProperties\SizeObserver.cs" />
-    <Compile Include="Models\ApplicationPage.cs" />
+    <Compile Include="Abstractions\ApplicationPage.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Adorners\RectAdorner.cs" />
+    <Compile Include="Views\UserControls\ImageListControl.xaml.cs">
+      <DependentUpon>ImageListControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ValueConverters\BaseValueConverter.cs" />
     <Compile Include="ValueConverters\EnumToPageConverter.cs" />
     <Compile Include="ValueConverters\StringPathToImageConverter.cs" />
@@ -110,6 +113,18 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\Images.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ScrollBars.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\ListViews.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserControls\ImageListControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -130,10 +145,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Styles\Buttons.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\Windows.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

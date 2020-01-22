@@ -1,4 +1,4 @@
-﻿namespace ImageViewer.Models
+﻿namespace ImageViewer.Abstractions
 {
     public enum ApplicationPage
     {
