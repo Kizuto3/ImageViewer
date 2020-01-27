@@ -5,7 +5,9 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:ImageViewer.Views"
       xmlns:prism="http://prismlibrary.com/"
+      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
       xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
+      xmlns:behaviors="clr-namespace:ImageViewer.Behaviors"
       xmlns:userControls="clr-namespace:ImageViewer.Views.UserControls"
       xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
       prism:ViewModelLocator.AutoWireViewModel="True"
@@ -54,20 +56,16 @@
             <!-- Left drop shadow -->
             <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
 
-            <!-- Scrollviewer to make sure that image will fit in screen-->
-            <ScrollViewer MouseLeave="ScrollViewer_MouseLeave" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                
+            <!-- Scrollviewer to make sure that can see a whole image-->
+            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <!-- The image -->
-                <Image RenderTransformOrigin="0.5, 0.5" 
-                   VerticalAlignment="Center"
-                   MouseDown="ImageView_MouseDown"
-                   MouseUp="ImageView_MouseUp"
-                   MouseMove="ImageView_MouseMove"
-                   attachedPropetries:SizeObserver.Observe="True"
-                   attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
-                   attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
-                   x:Name="CurrentImage"
-                   Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
+                <Image RenderTransformOrigin="0.5, 0.5"
+                           VerticalAlignment="Center"
+                           attachedPropetries:SizeObserver.Observe="True"
+                           attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
+                           attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
+                           x:Name="CurrentImage"
+                           Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
 
                     <Image.LayoutTransform>
                         <TransformGroup>
@@ -75,7 +73,18 @@
                             <RotateTransform Angle="{Binding CurrentImage.Angle}"/>
                         </TransformGroup>
                     </Image.LayoutTransform>
-                    
+
+                    <i:Interaction.Behaviors>
+                        
+                        <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
+                        
+                        <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
+                                                   SolidColorBrush="Blue"
+                                                   Background="Purple"
+                                                   Thickness="10"
+                                                   Opacity="0.5"/>
+                    </i:Interaction.Behaviors>
+
                 </Image>
 
             </ScrollViewer>
@@ -103,22 +112,22 @@
                     </Grid.RowDefinitions>
                     
                     <!-- Draw rectangle button -->
-                    <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="40">
+                    <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawRectangleCommand}">
                         <Image Source="{StaticResource RectangleDrawingImage}"/>
                     </Button>
 
                     <!-- Draw circle button -->
-                    <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="40">
+                    <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawCircleCommand}">
                         <Image Source="{StaticResource CircleDrawingImage}"/>
                     </Button>
 
                     <!-- Draw line button -->
-                    <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="40">
+                    <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawLineCommand}">
                         <Image Source="{StaticResource LineDrawingImage}"/>
                     </Button>
 
                     <!-- Marker button -->
-                    <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="40">
+                    <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="60">
                         <Image Source="{StaticResource MarkerDrawingImage}"/>
                     </Button>
                 </Grid>
@@ -171,41 +180,46 @@
             <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" Command="{Binding SwitchListVisibilityCommand}"/>
 
             <!-- Copy button-->
-            <Button Grid.Column="1" Style="{StaticResource Backgroundless}" x:Name="CopyButton" Click="CopyButton_Click">
+            <Button Grid.Column="1" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=CropCopySaveBehavior, Path=CopyCommand}">
                 <Image Source="{StaticResource CopyDrawingImage}"/>
             </Button>
 
-            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="SaveButton" Click="SaveButton_Click">
+            <!-- Save button -->
+            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=CropCopySaveBehavior, Path=SaveCommand}">
                 <Image Source="{StaticResource SaveImageDrawingImage}"/>
             </Button>
 
             <!-- Zoom in button-->
-            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Command="{Binding ZoomInCommand}">
+            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" Command="{Binding ZoomInCommand}">
                 <Image Source="{StaticResource ZoomInDrawingImage}"/>
             </Button>
 
             <!-- Zoom out button-->
-            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}">
+            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" Command="{Binding ZoomOutCommand}">
                 <Image Source="{StaticResource ZoomOutDrawingImage}"/>
             </Button>
 
             <!-- Rotate left button-->
-            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Command="{Binding RotateLeftCommand}">
+            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" Command="{Binding RotateLeftCommand}">
                 <Image Source="{StaticResource RotateLeftDrawingImage}"/>
             </Button>
 
             <!-- Rotate right button-->
-            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Command="{Binding RotateRightCommand}">
+            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" Command="{Binding RotateRightCommand}">
                 <Image Source="{StaticResource RotateRightDrawingImage}"/>
             </Button>
 
             <!-- Select area button -->
-            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
+            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=CropCopySaveBehavior, Path=SelectAreaCommand}">
                 <Image Source="{StaticResource SelectDrawingImage}"/>
             </Button>
 
             <!-- Crop button-->
-            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
+            <Button Grid.Column="8" Style="{StaticResource Backgroundless}">
+                <Button.InputBindings>
+                    <MouseBinding Gesture="LeftClick" Command="{Binding ElementName=CropCopySaveBehavior, Path=CropCommand}"/>
+                    <MouseBinding Gesture="RightClick" Command="{Binding ElementName=CropCopySaveBehavior, Path=RemoveCropCommand}"/>
+                </Button.InputBindings>
                 <Image Source="{StaticResource ScissorsDrawingImage}"/>
             </Button>
 

@@ -3,10 +3,6 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
 
 namespace ImageViewer.ViewModels
 {
