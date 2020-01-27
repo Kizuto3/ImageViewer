@@ -1,0 +1,51 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ImageViewer.Styles"
+                    xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties">
+
+    <Storyboard x:Key="SlideIn">
+        <DoubleAnimation Storyboard.TargetProperty="Width"
+                            From="0" To="200" 
+                            Duration="0:0:0.3"/>
+    </Storyboard>
+
+    <Storyboard x:Key="SlideOut">
+        <DoubleAnimation Storyboard.TargetProperty="Width"
+                            From="200" To="0" 
+                            Duration="0:0:0.3"/>
+    </Storyboard>
+
+    <Style x:Key="SlideInOut">
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding Path=(attachedPropetries:VisibilityProperty.ListVisibility), RelativeSource={RelativeSource Self}}" Value="True">
+
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard Storyboard="{StaticResource SlideIn}"/>
+                </DataTrigger.EnterActions>
+
+                <DataTrigger.ExitActions>
+                    <BeginStoryboard Storyboard="{StaticResource SlideOut}"/>
+                </DataTrigger.ExitActions>
+
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="SlideInOutReversed">
+        <Style.Triggers>
+
+            <DataTrigger Binding="{Binding Path=(attachedPropetries:VisibilityProperty.ListVisibility), RelativeSource={RelativeSource Self}}" Value="True">
+
+                <DataTrigger.EnterActions>
+                    <BeginStoryboard Storyboard="{StaticResource SlideOut}"/>
+                </DataTrigger.EnterActions>
+
+                <DataTrigger.ExitActions>
+                    <BeginStoryboard Storyboard="{StaticResource SlideIn}"/>
+                </DataTrigger.ExitActions>
+
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>
