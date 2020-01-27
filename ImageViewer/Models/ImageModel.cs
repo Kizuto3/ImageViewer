@@ -176,19 +176,15 @@ namespace ImageViewer.Models
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            try
+            if(obj is ImageModel)
             {
-                // Try to cast object to Image model
-                var image1 = (ImageModel)obj;
+                // cast object to Image model
+                var image1 = obj as ImageModel;
 
                 // And compare their paths
                 return FullPath.Equals(image1.FullPath);
             }
-            catch(InvalidCastException)
-            {
-                //Otherwise compare by references
-                return base.Equals(obj);
-            }
+            return base.Equals(obj);
         }
 
         /// <summary>

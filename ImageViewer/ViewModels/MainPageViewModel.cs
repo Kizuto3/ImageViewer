@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace ImageViewer.ViewModels
 {
@@ -95,37 +96,37 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// The command to add images to collection
         /// </summary>
-        public DelegateCommand AddImagesCommand { get; set; }
+        public DelegateCommand AddImagesCommand { get; }
 
         /// <summary>
         /// The command that switches the visibility of the image list
         /// </summary>
-        public DelegateCommand SwitchListVisibilityCommand { get; set; }
+        public DelegateCommand SwitchListVisibilityCommand { get; }
 
         /// <summary>
         /// The command that switches the visibility of the image list
         /// </summary>
-        public DelegateCommand SwitchEditBarVisibilityCommand { get; set; }
+        public DelegateCommand SwitchEditBarVisibilityCommand { get; }
 
         /// <summary>
         /// The command to zoom image in
         /// </summary>
-        public DelegateCommand ZoomInCommand { get; set; }
+        public DelegateCommand ZoomInCommand { get; }
 
         /// <summary>
         /// The command to zoom image out
         /// </summary>
-        public DelegateCommand ZoomOutCommand { get; set; }
+        public DelegateCommand ZoomOutCommand { get; }
 
         /// <summary>
         /// The command to rotate image left
         /// </summary>
-        public DelegateCommand RotateLeftCommand { get; set; }
+        public DelegateCommand RotateLeftCommand { get; }
 
         /// <summary>
         /// The command to rotate image right
         /// </summary>
-        public DelegateCommand RotateRightCommand { get; set; }
+        public DelegateCommand RotateRightCommand { get; }
 
         #endregion
 
@@ -161,13 +162,19 @@ namespace ImageViewer.ViewModels
                 Filter = "Image Files(*.jpg; *.jpeg; *.gif; *.bmp; *png)|*.jpg; *.jpeg; *.gif; *.bmp; *png|All files (*.*)|*.*",
                 Multiselect = true
             };
+
+            var regex = new Regex(@"([^\s]+(\.(?i)(jpg|jpeg|gif|tiff|bat|ico|png|heif|exif|bmp))$)", RegexOptions.IgnoreCase);
+
             if (open.ShowDialog() == true)
             {
                 foreach(var file in open.FileNames)
                 {
-                    var image = new ImageModel(file);
-                    if (Images.Contains(image)) continue;
-                    Images.Add(image);
+                    if (regex.IsMatch(file))
+                    {
+                        var image = new ImageModel(file);
+                        if (Images.Contains(image)) continue;
+                        Images.Add(image);
+                    }
                 }
             }
         }
