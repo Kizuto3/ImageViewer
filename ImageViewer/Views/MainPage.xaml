@@ -55,12 +55,12 @@
                                            attachedPropetries:VisibilityProperty.ListVisibility="{Binding IsListVisible}"
                                            Style="{StaticResource SlideInOutReversed}"/>
 
-
             <!-- Left drop shadow -->
             <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
 
             <!-- Scrollviewer to make sure that can see a whole image-->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+                
                 <!-- The image -->
                 <Image RenderTransformOrigin="0.5, 0.5"
                            VerticalAlignment="Center"
@@ -79,8 +79,10 @@
 
                     <i:Interaction.Behaviors>
                         
+                        <!-- Behavior that allows user to crop, copy and save the image -->
                         <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
-                        
+
+                        <!-- Behavior that allows user to draw shapes on the image -->
                         <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
                                                    SolidColorBrush="Blue"
                                                    Background="Purple"
