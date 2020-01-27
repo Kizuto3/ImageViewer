@@ -112,6 +112,7 @@
     <Compile Include="Adorners\GeometryAdorner.cs" />
     <Compile Include="AttachedProperties\SizeObserver.cs" />
     <Compile Include="Abstractions\ApplicationPage.cs" />
+    <Compile Include="AttachedProperties\VisibilityProperty.cs" />
     <Compile Include="Behaviors\CropCopySaveBehavior.cs" />
     <Compile Include="Behaviors\DrawingBehavior.cs" />
     <Compile Include="Models\ImageModel.cs" />
@@ -126,6 +127,10 @@
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Page Include="Styles\Animations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\Borders.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

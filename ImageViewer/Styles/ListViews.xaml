@@ -14,7 +14,7 @@
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type models:ImageModel}">
-                    <Grid MaxWidth="170" Height="50" x:Name="container" Background="Transparent">
+                    <Grid MaxWidth="170" x:Name="container" Background="Transparent">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="2*"/>

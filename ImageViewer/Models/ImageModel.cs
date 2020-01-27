@@ -151,7 +151,7 @@ namespace ImageViewer.Models
         /// </summary>
         public ImageModel()
         {
-            _fullPath = "";
+            _fullPath = string.Empty;
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
