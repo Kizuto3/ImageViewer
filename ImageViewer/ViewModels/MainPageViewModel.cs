@@ -1,8 +1,13 @@
-﻿using ImageViewer.Models;
+﻿using ImageViewer.DatabaseContext;
+using ImageViewer.Models;
 using Microsoft.Win32;
 using Prism.Commands;
 using Prism.Mvvm;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Data.Entity;
+using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ImageViewer.ViewModels
@@ -26,14 +31,14 @@ namespace ImageViewer.ViewModels
         private ImageModel _currentImage;
 
         /// <summary>
-        /// Defines if list is visible to user or not
+        /// Current page settings
         /// </summary>
-        private bool _isListVisible;
+        private PageModel _currentPage;
 
         /// <summary>
-        /// Defines if edit bar is visible to user or not
+        /// DataContext to manage database
         /// </summary>
-        private bool _isEditBarVisible;
+        private readonly ApplicationContext db;
 
         #endregion
 
@@ -55,39 +60,24 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
-        /// Defines if list is visible to user or not
+        /// Gets or set`s current page
         /// </summary>
-        public bool IsListVisible
+        public PageModel CurrentPage
         {
             get
             {
-                return _isListVisible;
+                return _currentPage;
             }
             set
             {
-                SetProperty(ref _isListVisible, value);
-            }
-        }
-
-        /// <summary>
-        /// Defines if edit bar is visible to user or not
-        /// </summary>
-        public bool IsEditBarVisible
-        {
-            get
-            {
-                return _isEditBarVisible;
-            }
-            set
-            {
-                SetProperty(ref _isEditBarVisible, value);
+                SetProperty(ref _currentPage, value);
             }
         }
 
         /// <summary>
         /// All images that user wants to watch
         /// </summary>
-        public ObservableCollection<ImageModel> Images { get; set;}
+        public IEnumerable<ImageModel> Images { get; set;} 
 
         #endregion
 
@@ -97,6 +87,11 @@ namespace ImageViewer.ViewModels
         /// The command to add images to collection
         /// </summary>
         public DelegateCommand AddImagesCommand { get; }
+
+        /// <summary>
+        /// The command to remove image from collection
+        /// </summary>
+        public DelegateCommand<ImageModel> RemoveImageCommand { get; }
 
         /// <summary>
         /// The command that switches the visibility of the image list
@@ -128,6 +123,11 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public DelegateCommand RotateRightCommand { get; }
 
+        /// <summary>
+        /// The command to change current image
+        /// </summary>
+        public DelegateCommand SelectionChangedCommand { get; }
+
         #endregion
 
         #region Constructors
@@ -137,25 +137,49 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public MainPageViewModel()
         {
-            _currentImage = new ImageModel();
-
             AddImagesCommand = new DelegateCommand(AddImages);
+            RemoveImageCommand = new DelegateCommand<ImageModel>(RemoveImage);
             SwitchListVisibilityCommand = new DelegateCommand(SwitchListVisibility);
             SwitchEditBarVisibilityCommand = new DelegateCommand(SwitchEditBarVisibility);
             ZoomInCommand = new DelegateCommand(ZoomIn);
             ZoomOutCommand = new DelegateCommand(ZoomOut);
             RotateLeftCommand = new DelegateCommand(RotateLeft);
             RotateRightCommand = new DelegateCommand(RotateRight);
+            SelectionChangedCommand = new DelegateCommand(SelectionChanged);
 
-            Images = new ObservableCollection<ImageModel>();
+            db = new ApplicationContext();
+            db.ImageModels.LoadAsync();
+            db.PageModels.LoadAsync();
+
+            for (var i = 0; i < db.ImageModels.Local.Count; i++)
+            {
+                if (!File.Exists(db.ImageModels.Local[i].Fullpath)) db.ImageModels.Local.RemoveAt(i--);
+            }
+
+            var page = db.PageModels.Local.FirstOrDefault();
+
+            if(page == null)
+            {
+                _currentPage = new PageModel(false, false, 0);
+                db.PageModels.Local.Add(_currentPage);
+            }
+            else
+            {
+                _currentPage = page;
+            }
+
+            _currentImage = db.ImageModels.Local.FirstOrDefault(img => img.ID == CurrentPage.ImageModelID);
+            Images = db.ImageModels.Local.ToBindingList();
+
+            db.SaveChangesAsync();
         }
 
         #endregion
 
         /// <summary>
-        /// Add images to observable collection
+        /// Add images to database
         /// </summary>
-        public void AddImages()
+        private void AddImages()
         {
             OpenFileDialog open = new OpenFileDialog()
             {
@@ -172,61 +196,101 @@ namespace ImageViewer.ViewModels
                     if (regex.IsMatch(file))
                     {
                         var image = new ImageModel(file);
-                        if (Images.Contains(image)) continue;
-                        Images.Add(image);
+                        if (db.ImageModels.Local.Contains(image)) continue;
+                        db.ImageModels.Add(image);
                     }
                 }
+                db.SaveChangesAsync();
             }
+        }
+
+        /// <summary>
+        /// Removes ImageModel from list
+        /// </summary>
+        /// <param name="imageModel">ImageModel to remove</param>
+        private void RemoveImage(ImageModel imageModel)
+        {
+            db.ImageModels.Local.Remove(imageModel);
+            db.SaveChangesAsync();
         }
 
         /// <summary>
         /// Swithes IsListVisible value to show or hide image list on UI
         /// </summary>
-        public void SwitchListVisibility()
+        private void SwitchListVisibility()
         {
-            IsListVisible = !IsListVisible;
+            CurrentPage.IsListVisible = !CurrentPage.IsListVisible;
+
+            db.Entry(CurrentPage).State = EntityState.Modified;
+            db.SaveChanges();
         }
 
         /// <summary>
         /// Switches IsEditBarVisible value to show or hide edit bar on UI
         /// </summary>
-        public void SwitchEditBarVisibility()
+        private void SwitchEditBarVisibility()
         {
-            IsEditBarVisible = !IsEditBarVisible;
+            CurrentPage.IsEditBarVisible = !CurrentPage.IsEditBarVisible;
+
+            db.Entry(CurrentPage).State = EntityState.Modified;
+            db.SaveChanges();
         }
 
         /// <summary>
         /// Increases image scale by <see cref="ScaleIn"/> (1.1)
         /// </summary>
-        public void ZoomIn()
+        private void ZoomIn()
         {
             CurrentImage.ScaleX *= ScaleIn;
             CurrentImage.ScaleY *= ScaleIn;
+
+            db.Entry(CurrentImage).State = EntityState.Modified;
+            db.SaveChangesAsync();
         }
 
         /// <summary>
         /// Increases image scale by <see cref="ScaleOut"/> (0.9)
         /// </summary>
-        public void ZoomOut()
+        private void ZoomOut()
         {
             CurrentImage.ScaleX *= ScaleOut;
             CurrentImage.ScaleY *= ScaleOut;
+
+            db.Entry(CurrentImage).State = EntityState.Modified;
+            db.SaveChangesAsync();
         }
 
         /// <summary>
         /// Decreases image rotation angle by <see cref="RotationAngle"/> (90)
         /// </summary>
-        public void RotateLeft()
+        private void RotateLeft()
         {
             CurrentImage.Angle -= RotationAngle;
+
+            db.Entry(CurrentImage).State = EntityState.Modified;
+            db.SaveChangesAsync();
         }
 
         /// <summary>
         /// Increases image rotation angle by <see cref="RotationAngle"/> (90)
         /// </summary>
-        public void RotateRight()
+        private void RotateRight()
         {
             CurrentImage.Angle += RotationAngle;
+
+            db.Entry(CurrentImage).State = EntityState.Modified;
+            db.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Changes current image
+        /// </summary>
+        private void SelectionChanged()
+        {
+            CurrentPage.ImageModelID = CurrentImage != null? CurrentImage.ID : 0;
+
+            db.Entry(CurrentPage).State = EntityState.Modified;
+            db.SaveChangesAsync();
         }
     }
 }

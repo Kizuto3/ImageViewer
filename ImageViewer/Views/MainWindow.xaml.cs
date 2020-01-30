@@ -14,16 +14,6 @@ namespace ImageViewer.Views
         }
 
         /// <summary>
-        /// Close the window
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void CloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            Close();
-        }
-
-        /// <summary>
         /// Maximize the window
         /// </summary>
         /// <param name="sender"></param>

@@ -5,12 +5,32 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d" >
     <Grid>
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
+            
+            <!-- List with all images-->
             <ListView ItemsSource="{Binding Images}" 
                       SelectedItem="{Binding CurrentImage}"
                       Style="{StaticResource ImageList}">
+                
+                <!-- Pop up context menu that allows to remove item-->
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Remove"
+                                  Command="{Binding RemoveImageCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+                
+                <!-- Binding SelectionChanged event to command -->
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
             </ListView>
         </ScrollViewer>
     </Grid>

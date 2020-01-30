@@ -52,7 +52,7 @@
 
             <!-- Image List -->
             <userControls:ImageListControl Grid.Column="0"
-                                           attachedPropetries:VisibilityProperty.ListVisibility="{Binding IsListVisible}"
+                                           attachedPropetries:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsListVisible}"
                                            Style="{StaticResource SlideInOutReversed}"/>
 
             <!-- Left drop shadow -->
@@ -64,11 +64,8 @@
                 <!-- The image -->
                 <Image RenderTransformOrigin="0.5, 0.5"
                            VerticalAlignment="Center"
-                           attachedPropetries:SizeObserver.Observe="True"
-                           attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
-                           attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
                            x:Name="CurrentImage"
-                           Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
+                           Source="{Binding CurrentImage.Fullpath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
 
                     <Image.LayoutTransform>
                         <TransformGroup>
@@ -100,42 +97,42 @@
             <!-- Container with buttons for editing image -->
             <Grid Width="0"
                   Grid.Column="4"
-                  attachedPropetries:VisibilityProperty.ListVisibility="{Binding IsEditBarVisible}"
+                  attachedPropetries:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsEditBarVisible}"
                   Style="{StaticResource SlideInOut}">
                 <Grid.RowDefinitions>
 
                     <!-- Draw rectangle button -->
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="100"/>
 
                     <!-- Draw circle button -->
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="100"/>
 
                     <!-- Draw line button -->
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="100"/>
 
                     <!-- Marker button -->
-                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*" MinHeight="100"/>
 
                 </Grid.RowDefinitions>
 
                 <!-- Draw rectangle button -->
-                <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawRectangleCommand}">
-                    <Image Source="{StaticResource RectangleDrawingImage}"/>
+                <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=DrawingBehavior, Path=DrawRectangleCommand}">
+                    <Image Source="{StaticResource RectangleDrawingImage}" Height="70"/>
                 </Button>
 
                 <!-- Draw circle button -->
-                <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawCircleCommand}">
-                    <Image Source="{StaticResource CircleDrawingImage}"/>
+                <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=DrawingBehavior, Path=DrawCircleCommand}">
+                    <Image Source="{StaticResource CircleDrawingImage}" Height="70"/>
                 </Button>
 
                 <!-- Draw line button -->
-                <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="60" Command="{Binding ElementName=DrawingBehavior, Path=DrawLineCommand}">
-                    <Image Source="{StaticResource LineDrawingImage}"/>
+                <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Command="{Binding ElementName=DrawingBehavior, Path=DrawLineCommand}">
+                    <Image Source="{StaticResource LineDrawingImage}" Height="70"/>
                 </Button>
 
                 <!-- Marker button -->
-                <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="60">
-                    <Image Source="{StaticResource MarkerDrawingImage}"/>
+                <Button Grid.Row="3" Style="{StaticResource Backgroundless}">
+                    <Image Source="{StaticResource MarkerDrawingImage}" Height="70"/>
                 </Button>
             </Grid>
         </Grid>

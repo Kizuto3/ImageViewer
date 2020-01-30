@@ -14,14 +14,14 @@
         <Setter Property="ItemTemplate">
             <Setter.Value>
                 <DataTemplate DataType="{x:Type models:ImageModel}">
-                    <Grid MaxWidth="170" x:Name="container" Background="Transparent">
+                    <Grid MaxWidth="195" x:Name="container" Background="Transparent">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0" Padding="5">
-                            <Image x:Name="img" Source="{Binding FullPath, Converter={converters:StringPathToImageConverter}}"/>
+                            <Image x:Name="img" Source="{Binding Fullpath, Converter={converters:StringPathToImageConverter}}"/>
                         </Border>
 
                         <TextBlock x:Name="txt" Grid.Column="1" 

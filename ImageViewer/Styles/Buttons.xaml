@@ -5,6 +5,7 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="Colors.xaml"/>
         <ResourceDictionary Source="Fonts.xaml"/>
+        <ResourceDictionary Source="Animations.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     
@@ -30,18 +31,10 @@
         <Setter Property="Padding" Value="6"/>
         <Style.Triggers>
             <EventTrigger RoutedEvent="MouseEnter">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation To="{StaticResource BackgroudLight}" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
-                    </Storyboard>
-                </BeginStoryboard>
+                <BeginStoryboard Storyboard="{StaticResource BGColorToLight}"/>
             </EventTrigger>
             <EventTrigger RoutedEvent="MouseLeave">
-                <BeginStoryboard>
-                    <Storyboard>
-                        <ColorAnimation To="Transparent" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
-                    </Storyboard>
-                </BeginStoryboard>
+                <BeginStoryboard Storyboard="{StaticResource BGColorToTransparent}"/>
             </EventTrigger>
             <Trigger Property="IsPressed" Value="True">
                 <Setter Property="Background" Value="{StaticResource ForegroundDarkBrush}"/>

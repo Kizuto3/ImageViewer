@@ -1,5 +1,4 @@
 ﻿using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -12,7 +11,7 @@ namespace ImageViewer.Models
         /// <summary>
         /// Full path to an image 
         /// </summary>
-        private string _fullPath;
+        private string _fullpath;
 
         /// <summary>
         /// Scale of an image
@@ -29,32 +28,24 @@ namespace ImageViewer.Models
         /// </summary>
         private double _angle;
 
-        /// <summary>
-        /// Actual width of an image
-        /// </summary>
-        private double _width;
-
-        /// <summary>
-        /// Actual height of an image
-        /// </summary>
-        private double _height;
-
         #endregion
 
         #region Public Properties
 
+        public int ID { get; set; }
+
         /// <summary>
         /// Full path to image
         /// </summary>
-        public string FullPath
+        public string Fullpath
         {
             get
             {
-                return _fullPath;
+                return _fullpath;
             }
             set
             {
-                SetProperty(ref _fullPath, value);
+                SetProperty(ref _fullpath, value);
             }
         }
 
@@ -104,43 +95,13 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Actual width of an image
-        /// </summary>
-        public double Width
-        {
-            get
-            {
-                return _width;
-            }
-            set
-            {
-                SetProperty(ref _width, value);
-            }
-        }
-
-        /// <summary>
-        /// Actual height of an image
-        /// </summary>
-        public double Height
-        {
-            get
-            {
-                return _height;
-            }
-            set
-            {
-                SetProperty(ref _height, value);
-            }
-        }
-
-        /// <summary>
         /// File name of the image
         /// </summary>
         public string FileName
         {
             get
             {
-                return Path.GetFileName(_fullPath);
+                return Path.GetFileName(_fullpath);
             }
         }
 
@@ -151,10 +112,6 @@ namespace ImageViewer.Models
         /// </summary>
         public ImageModel()
         {
-            _fullPath = string.Empty;
-            _scaleX = 1;
-            _scaleY = 1;
-            _angle = 0;
         }
 
         /// <summary>
@@ -163,7 +120,7 @@ namespace ImageViewer.Models
         /// <param name="path">Full path to image</param>
         public ImageModel(string path)
         {
-            _fullPath = path;
+            _fullpath = path;
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
@@ -182,7 +139,7 @@ namespace ImageViewer.Models
                 var image1 = obj as ImageModel;
 
                 // And compare their paths
-                return FullPath.Equals(image1.FullPath);
+                return Fullpath.Equals(image1.Fullpath);
             }
             return base.Equals(obj);
         }
@@ -194,8 +151,8 @@ namespace ImageViewer.Models
         public override int GetHashCode()
         {
             var hashCode = 1295127587;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_fullPath);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FullPath);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_fullpath);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Fullpath);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FileName);
             return hashCode;
         }
