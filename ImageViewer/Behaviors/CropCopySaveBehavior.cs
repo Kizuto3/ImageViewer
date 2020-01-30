@@ -46,14 +46,29 @@ namespace ImageViewer.Behaviors
 
         #region Commands
 
+        /// <summary>
+        /// Command to save image
+        /// </summary>
         public ICommand SaveCommand => new DelegateCommand(OnSave);
 
+        /// <summary>
+        /// Command to crop image
+        /// </summary>
         public ICommand CropCommand => new DelegateCommand(OnCrop);
 
+        /// <summary>
+        /// Command to remove crop from image
+        /// </summary>
         public ICommand RemoveCropCommand => new DelegateCommand(OnRemoveCrop);
 
+        /// <summary>
+        /// Command to copy image to clipboard
+        /// </summary>
         public ICommand CopyCommand => new DelegateCommand(OnCopy);
 
+        /// <summary>
+        /// Command to select area to crop
+        /// </summary>
         public ICommand SelectAreaCommand => new DelegateCommand(OnSelectArea);
 
         #endregion

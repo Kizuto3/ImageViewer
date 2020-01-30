@@ -176,6 +176,8 @@ namespace ImageViewer.ViewModels
 
         #endregion
 
+        #region Methods
+
         /// <summary>
         /// Add images to database
         /// </summary>
@@ -287,10 +289,12 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void SelectionChanged()
         {
-            CurrentPage.ImageModelID = CurrentImage != null? CurrentImage.ID : 0;
+            CurrentPage.ImageModelID = CurrentImage != null? CurrentImage.ID : CurrentPage.ImageModelID - 1;
 
             db.Entry(CurrentPage).State = EntityState.Modified;
             db.SaveChangesAsync();
         }
+
+        #endregion
     }
 }

@@ -107,6 +107,8 @@ namespace ImageViewer.Models
 
         #endregion
 
+        #region Constructors
+
         /// <summary>
         /// Default Constructor
         /// </summary>
@@ -125,6 +127,10 @@ namespace ImageViewer.Models
             _scaleY = 1;
             _angle = 0;
         }
+
+        #endregion
+
+        #region Overrided Methods
 
         /// <summary>
         /// Compare Image models by full paths of two images
@@ -156,5 +162,7 @@ namespace ImageViewer.Models
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(FileName);
             return hashCode;
         }
+
+        #endregion
     }
 }

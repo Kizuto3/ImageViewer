@@ -6,6 +6,8 @@ namespace ImageViewer.Adorners
 {
     public class GeometryAdorner : Adorner
     {
+        #region Public Properties
+
         /// <summary>
         /// Geometry to draw on image
         /// </summary>
@@ -36,6 +38,10 @@ namespace ImageViewer.Adorners
         /// </summary>
         public double BackgroundOpacity { get; set; } = 0.2;
 
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Constructor
         /// </summary>
@@ -57,6 +63,10 @@ namespace ImageViewer.Adorners
             Geometry = geometry;
         }
 
+        #endregion
+
+        #region Overrided Methods
+
         /// <summary>
         /// Draw the <see cref="Geometry"/>
         /// </summary>
@@ -73,5 +83,7 @@ namespace ImageViewer.Adorners
 
             drawingContext.DrawGeometry(renderBrush, renderPen, Geometry);
         }
+
+        #endregion
     }
 }

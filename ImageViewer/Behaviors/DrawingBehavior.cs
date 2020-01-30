@@ -172,8 +172,6 @@ namespace ImageViewer.Behaviors
             }
         }
 
-        #endregion
-
         /// <summary>
         /// Draw a rectangle
         /// </summary>
@@ -268,5 +266,7 @@ namespace ImageViewer.Behaviors
             _drawCircle = false;
             _drawLine = !_drawLine;
         }
+
+        #endregion
     }
 }

@@ -61,6 +61,8 @@ namespace ImageViewer.ViewModels
 
         #endregion
 
+        #region Constructors
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -83,6 +85,8 @@ namespace ImageViewer.ViewModels
                 CurrentWindow = window;
             }
         }
+
+        #endregion
 
         #region Methods
 

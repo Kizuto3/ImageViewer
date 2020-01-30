@@ -117,6 +117,8 @@ namespace ImageViewer.Models
 
         #endregion
 
+        #region Constructors
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -140,5 +142,7 @@ namespace ImageViewer.Models
             _height = height;
             _state = state;
         }
+
+        #endregion
     }
 }

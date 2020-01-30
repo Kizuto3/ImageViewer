@@ -127,7 +127,6 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Adorners\GeometryAdorner.cs" />
-    <Compile Include="AttachedProperties\SizeObserver.cs" />
     <Compile Include="Abstractions\ApplicationPage.cs" />
     <Compile Include="AttachedProperties\VisibilityProperty.cs" />
     <Compile Include="Behaviors\CropCopySaveBehavior.cs" />

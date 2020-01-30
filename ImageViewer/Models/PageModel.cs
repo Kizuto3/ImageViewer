@@ -4,6 +4,8 @@ namespace ImageViewer.Models
 {
     public class PageModel : BindableBase
     {
+        #region Private Members
+
         /// <summary>
         /// Flag that defines if image list is visible to user or not
         /// </summary>
@@ -18,6 +20,10 @@ namespace ImageViewer.Models
         /// The id of image to display
         /// </summary>
         private int _imageModelID;
+
+        #endregion
+
+        #region Public Properties
 
         /// <summary>
         /// Gets or sets the flag that defines if image list is visible to user or not
@@ -69,6 +75,10 @@ namespace ImageViewer.Models
         /// </summary>
         public int ID { get; set; }
 
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Default constructor
         /// </summary>
@@ -90,5 +100,7 @@ namespace ImageViewer.Models
             _isEditBarVisible = isEditBarVisible;
             _imageModelID = imageModelID;
         }
+
+        #endregion
     }
 }
