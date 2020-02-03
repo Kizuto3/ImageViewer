@@ -1,5 +1,5 @@
-﻿using ImageViewer.Models;
-using System;
+﻿using Dapper;
+using ImageViewer.Models;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
@@ -9,6 +9,8 @@ namespace ImageViewer.DatabaseContext
 {
     public class ApplicationContext
     {
+        #region Private Members
+
         /// <summary>
         /// Connection string
         /// </summary>
@@ -19,6 +21,10 @@ namespace ImageViewer.DatabaseContext
         /// </summary>
         private SQLiteConnection _SQLiteConnection = null;
 
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Default costructor
         /// </summary>
@@ -27,6 +33,10 @@ namespace ImageViewer.DatabaseContext
             _connectionString = "Data Source=master.db";
             CreateDatabase();
         }
+
+        #endregion
+
+        #region Connection Methods
 
         /// <summary>
         /// Open database connection
@@ -50,6 +60,8 @@ namespace ImageViewer.DatabaseContext
                 _SQLiteConnection?.Close();
             }
         }
+
+        #endregion
 
         /// <summary>
         /// Create database file if it`s not exist
@@ -105,6 +117,8 @@ namespace ImageViewer.DatabaseContext
             }
         }
 
+        #region 'Select' Methods
+
         /// <summary>
         /// Get all <see cref="ImageModel"/> from database
         /// </summary>
@@ -117,23 +131,9 @@ namespace ImageViewer.DatabaseContext
 
             const string query = "SELECT * FROM [ImageModels]";
 
-            using(var command = new SQLiteCommand(query, _SQLiteConnection))
-            {
-                command.CommandType = CommandType.Text;
-                SQLiteDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (reader.Read())
-                {
-                    imageModels.Add(new ImageModel
-                    {
-                        ID = Convert.ToInt32(reader["ID"]),
-                        FullPath = Convert.ToString(reader["Fullpath"]),
-                        ScaleX = Convert.ToDouble(reader["ScaleX"]),
-                        ScaleY = Convert.ToDouble(reader["ScaleY"]),
-                        Angle = Convert.ToDouble(reader["Angle"])
-                    });
-                }
-                reader.Close();
+            using (_SQLiteConnection)
+            { 
+                imageModels = _SQLiteConnection.Query<ImageModel>(query).AsList();
             }
 
             return imageModels;
@@ -151,22 +151,9 @@ namespace ImageViewer.DatabaseContext
 
             const string query = "SELECT * FROM [PageModels]";
 
-            using (var command = new SQLiteCommand(query, _SQLiteConnection))
+            using (_SQLiteConnection)
             {
-                command.CommandType = CommandType.Text;
-                SQLiteDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (reader.Read())
-                {
-                    pageModels.Add(new PageModel
-                    {
-                        ID = Convert.ToInt32(reader["ID"]),
-                        ImageModelID = Convert.ToInt32(reader["ImageModelID"]),
-                        IsListVisible = Convert.ToBoolean(reader["IsListVisible"]),
-                        IsEditBarVisible = Convert.ToBoolean(reader["IsEditBarVisible"])
-                    });
-                }
-                reader.Close();
+                pageModels = _SQLiteConnection.Query<PageModel>(query).AsList();
             }
 
             return pageModels;
@@ -184,23 +171,9 @@ namespace ImageViewer.DatabaseContext
 
             const string query = "SELECT * FROM [WindowModels]";
 
-            using (var command = new SQLiteCommand(query, _SQLiteConnection))
+            using (_SQLiteConnection)
             {
-                SQLiteDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (reader.Read())
-                {
-                    windowModels.Add(new WindowModel
-                    {
-                        Left = Convert.ToDouble(reader["Left"]),
-                        Top = Convert.ToDouble(reader["Top"]),
-                        Width = Convert.ToDouble(reader["Width"]),
-                        Height = Convert.ToDouble(reader["Height"]),
-                        State = Convert.ToInt32(reader["State"]),
-                        ID = Convert.ToInt32(reader["ID"])
-                    });
-                }
-                reader.Close();
+                windowModels = _SQLiteConnection.Query<WindowModel>(query).AsList();
             }
 
             return windowModels;
@@ -218,25 +191,17 @@ namespace ImageViewer.DatabaseContext
 
             const string query = "SELECT * FROM [EditModels]";
 
-            using (var command = new SQLiteCommand(query, _SQLiteConnection))
+            using (_SQLiteConnection)
             {
-                command.CommandType = CommandType.Text;
-                SQLiteDataReader reader = command.ExecuteReader(CommandBehavior.CloseConnection);
-
-                while (reader.Read())
-                {
-                    editModels.Add(new EditModel
-                    {
-                        ID = Convert.ToInt32(reader["ID"]),
-                        Path = Convert.ToString(reader["Path"]),
-                        ImageModelID = Convert.ToInt32(reader["ImageModelID"]),
-                    });
-                }
-                reader.Close();
+                editModels = _SQLiteConnection.Query<EditModel>(query).AsList();
             }
 
             return editModels;
         }
+
+        #endregion
+
+        #region 'Insert' Methods
 
         /// <summary>
         /// Insert <see cref="ImageModel"/> into database using parametrized query
@@ -422,6 +387,10 @@ namespace ImageViewer.DatabaseContext
             CloseConnection();
         }
 
+        #endregion
+
+        #region 'Update' Methods
+
         /// <summary>
         /// Update <see cref="ImageModel"/> by it`s ID
         /// </summary>
@@ -591,6 +560,10 @@ namespace ImageViewer.DatabaseContext
             CloseConnection();
         }
 
+        #endregion
+
+        #region 'Remove' Methods
+
         /// <summary>
         /// Remove <see cref="ImageModel"/> from database by ID
         /// </summary>
@@ -616,5 +589,7 @@ namespace ImageViewer.DatabaseContext
 
             CloseConnection();
         }
+
+        #endregion
     }
 }

@@ -245,8 +245,8 @@ namespace ImageViewer.ViewModels
                     {
                         var image = new ImageModel(file);
                         if (Images.Contains(image)) continue;
-                        Images.Add(image);
                         _db.InsertImageModel(image);
+                        Images.Add(_db.GetImageModels().Last());
                     }
                 }
             }
