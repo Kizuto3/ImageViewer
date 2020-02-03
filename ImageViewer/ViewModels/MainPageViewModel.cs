@@ -1,14 +1,17 @@
-﻿using ImageViewer.DatabaseContext;
+﻿using CommonServiceLocator;
+using ImageViewer.DatabaseContext;
+using ImageViewer.EventAggregators;
 using ImageViewer.Models;
 using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Unity;
 
 namespace ImageViewer.ViewModels
 {
@@ -39,6 +42,11 @@ namespace ImageViewer.ViewModels
         /// DataContext to manage database
         /// </summary>
         private readonly ApplicationContext db;
+
+        /// <summary>
+        /// Event aggregator to publish <see cref="IdSentEvent"/> event
+        /// </summary>
+        private IEventAggregator _ea;
 
         #endregion
 
@@ -158,7 +166,7 @@ namespace ImageViewer.ViewModels
 
             var page = db.PageModels.Local.FirstOrDefault();
 
-            if(page == null)
+            if (page == null)
             {
                 _currentPage = new PageModel(false, false, 0);
                 db.PageModels.Local.Add(_currentPage);
@@ -172,6 +180,10 @@ namespace ImageViewer.ViewModels
             Images = db.ImageModels.Local.ToBindingList();
 
             db.SaveChangesAsync();
+
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            _ea = container.Resolve<IEventAggregator>();
+            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
         }
 
         #endregion
@@ -284,17 +296,19 @@ namespace ImageViewer.ViewModels
             db.SaveChangesAsync();
         }
 
+        #endregion
+
         /// <summary>
         /// Changes current image
         /// </summary>
         private void SelectionChanged()
         {
-            CurrentPage.ImageModelID = CurrentImage != null? CurrentImage.ID : CurrentPage.ImageModelID - 1;
+            CurrentPage.ImageModelID = CurrentImage != null ? CurrentImage.ID : CurrentPage.ImageModelID - 1;
+
+            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
 
             db.Entry(CurrentPage).State = EntityState.Modified;
             db.SaveChangesAsync();
         }
-
-        #endregion
     }
 }

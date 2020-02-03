@@ -1,5 +1,4 @@
-﻿using ImageViewer.ViewModels;
-using System.Windows.Controls;
+﻿using System.Windows.Controls;
 
 namespace ImageViewer.Views
 {

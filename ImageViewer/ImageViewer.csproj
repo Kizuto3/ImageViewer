@@ -132,6 +132,8 @@
     <Compile Include="Behaviors\CropCopySaveBehavior.cs" />
     <Compile Include="Behaviors\DrawingBehavior.cs" />
     <Compile Include="DatabaseContext\ApplicationContext.cs" />
+    <Compile Include="EventAggregators\IdSentEvent.cs" />
+    <Compile Include="Models\EditModel.cs" />
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\PageModel.cs" />
     <Compile Include="Models\WindowModel.cs" />

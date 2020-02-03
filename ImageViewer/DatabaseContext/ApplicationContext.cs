@@ -1,5 +1,8 @@
 ﻿using ImageViewer.Models;
+using System.Configuration;
 using System.Data.Entity;
+using System.Data.SQLite;
+using System.IO;
 
 namespace ImageViewer.DatabaseContext
 {
@@ -35,6 +38,11 @@ namespace ImageViewer.DatabaseContext
         /// <see cref="PageModel"/> entities
         /// </summary>
         public DbSet<PageModel> PageModels { get; set; }
+
+        /// <summary>
+        /// <see cref="EditModel"/> entities
+        /// </summary>
+        public DbSet<EditModel> EditModels { get; set; }
 
         #endregion
     }

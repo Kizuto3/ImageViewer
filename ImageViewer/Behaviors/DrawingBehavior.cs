@@ -8,10 +8,18 @@ using ImageViewer.Adorners;
 using System.Windows.Documents;
 using System.Collections.Generic;
 using Prism.Commands;
+using ImageViewer.DatabaseContext;
+using System.Data.Entity;
+using System.Linq;
+using Prism.Events;
+using ImageViewer.EventAggregators;
+using ImageViewer.Models;
+using CommonServiceLocator;
+using Unity;
 
 namespace ImageViewer.Behaviors
 {
-    class DrawingBehavior : Behavior<Image>
+    public class DrawingBehavior : Behavior<Image>
     {
         #region Properties
 
@@ -77,6 +85,11 @@ namespace ImageViewer.Behaviors
         private bool _drawLine;
 
         /// <summary>
+        /// ID of current image
+        /// </summary>
+        private int _imageModelID;
+
+        /// <summary>
         /// Adorners that will be added to image adorner layer
         /// </summary>
         private readonly List<GeometryAdorner> _adorners = new List<GeometryAdorner>();
@@ -85,6 +98,16 @@ namespace ImageViewer.Behaviors
         /// Image adorner layer
         /// </summary>
         private AdornerLayer _layer;
+
+        /// <summary>
+        /// Data context to manage database
+        /// </summary>
+        private readonly ApplicationContext _db = new ApplicationContext();
+
+        /// <summary>
+        /// Event Aggregator to subscribe to <see cref="IdSentEvent"/> event
+        /// </summary>
+        private readonly IEventAggregator _ea;
 
         #endregion
 
@@ -107,6 +130,16 @@ namespace ImageViewer.Behaviors
 
         #endregion
 
+        /// <summary>
+        /// Constructor to subscribe to <see cref="IdSentEvent"/> event aggregator
+        /// </summary>
+        public DrawingBehavior()
+        {
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            _ea = container.Resolve<IEventAggregator>();
+            _ea.GetEvent<IdSentEvent>().Subscribe(DrawGeometries);
+        }
+
         #region Methods
 
         protected override void OnAttached()
@@ -115,6 +148,7 @@ namespace ImageViewer.Behaviors
 
             AssociatedObject.MouseDown += OnMouseDown;
             AssociatedObject.MouseMove += OnMouseMove;
+            AssociatedObject.MouseUp += OnMouseUp;
         }
 
         protected override void OnDetaching()
@@ -123,6 +157,7 @@ namespace ImageViewer.Behaviors
 
             AssociatedObject.MouseLeftButtonDown -= OnMouseDown;
             AssociatedObject.MouseMove -= OnMouseMove;
+            AssociatedObject.MouseUp -= OnMouseUp;
         }
 
         /// <summary>
@@ -143,13 +178,17 @@ namespace ImageViewer.Behaviors
                 BackgroundColor = Background
             };
 
-            if (_layer == null) _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            adorner.MouseMove += OnMouseMove;
+            adorner.MouseDown += OnMouseDown;
+            adorner.MouseUp += OnMouseUp;
+
+            if (_layer == null)
+            {
+                _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            }
 
             _layer.Add(adorner);
             _adorners.Add(adorner);
-
-            adorner.MouseMove += OnMouseMove;
-            adorner.MouseDown += OnMouseDown;
         }
 
         /// <summary>
@@ -170,6 +209,15 @@ namespace ImageViewer.Behaviors
                 if (_drawLine)
                     DrawLine(_adorners[_adorners.Count - 1]);
             }
+        }
+
+        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_adorners.Last().Geometry == null) return;
+
+            var path = _adorners.Last().Geometry.GetFlattenedPathGeometry().ToString();
+            _db.EditModels.Add(new EditModel(_imageModelID, path));
+            _db.SaveChangesAsync();
         }
 
         /// <summary>
@@ -265,6 +313,47 @@ namespace ImageViewer.Behaviors
             _drawRectangle = false;
             _drawCircle = false;
             _drawLine = !_drawLine;
+        }
+
+        /// <summary>
+        /// Gets all geometries related to image with <paramref name="imageModelID"/> from database and draws them
+        /// </summary>
+        /// <param name="imageModelID">ID of image</param>
+        private void DrawGeometries(int imageModelID)
+        {
+            if (_layer == null)
+            {
+                _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            }
+
+            foreach (var adorner in _adorners)
+            {
+                _layer.Remove(adorner);
+            }
+
+            _imageModelID = imageModelID;
+            _db.EditModels.Load();
+
+            var shapes = _db.EditModels.Where(m => m.ImageModelID == _imageModelID).ToList();
+
+            foreach (var shape in shapes)
+            {
+                var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
+                {
+                    Cursor = Cursors.Hand,
+                    BorderBrush = SolidColorBrush,
+                    BorderThickness = Thickness,
+                    BackgroundOpacity = Opacity,
+                    BackgroundColor = Background
+                };
+
+                adorner.MouseMove += OnMouseMove;
+                adorner.MouseDown += OnMouseDown;
+                adorner.MouseUp += OnMouseUp;
+
+                _adorners.Add(adorner);
+                _layer.Add(adorner);
+            }
         }
 
         #endregion
