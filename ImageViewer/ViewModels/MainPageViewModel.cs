@@ -4,6 +4,13 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using ImageViewer.DatabaseContext;
+using System.IO;
+using System.Linq;
+using Prism.Events;
+using ImageViewer.EventAggregators;
+using CommonServiceLocator;
+using Unity;
 
 namespace ImageViewer.ViewModels
 {
@@ -26,6 +33,11 @@ namespace ImageViewer.ViewModels
         private ImageModel _currentImage;
 
         /// <summary>
+        /// Current page
+        /// </summary>
+        private PageModel _currentPage;
+
+        /// <summary>
         /// Defines if list is visible to user or not
         /// </summary>
         private bool _isListVisible;
@@ -34,6 +46,16 @@ namespace ImageViewer.ViewModels
         /// Defines if edit bar is visible to user or not
         /// </summary>
         private bool _isEditBarVisible;
+
+        /// <summary>
+        /// Database context to manage database
+        /// </summary>
+        private readonly ApplicationContext _db;
+
+        /// <summary>
+        /// Event aggregator to publish <see cref="IdSentEvent"/> event
+        /// </summary>
+        private readonly IEventAggregator _ea;
 
         #endregion
 
@@ -51,6 +73,21 @@ namespace ImageViewer.ViewModels
             set
             {
                 SetProperty(ref _currentImage, value);
+            }
+        }
+
+        /// <summary>
+        /// Current page
+        /// </summary>
+        public PageModel CurrentPage
+        {
+            get
+            {
+                return _currentPage;
+            }
+            set
+            {
+                SetProperty(ref _currentPage, value);
             }
         }
 
@@ -99,6 +136,11 @@ namespace ImageViewer.ViewModels
         public DelegateCommand AddImagesCommand { get; }
 
         /// <summary>
+        /// The command to remove image from collection
+        /// </summary>
+        public DelegateCommand<ImageModel> RemoveImageCommand { get; }
+
+        /// <summary>
         /// The command that switches the visibility of the image list
         /// </summary>
         public DelegateCommand SwitchListVisibilityCommand { get; }
@@ -128,6 +170,11 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public DelegateCommand RotateRightCommand { get; }
 
+        /// <summary>
+        /// The command to change current image
+        /// </summary>
+        public DelegateCommand SelectionChangedCommand { get; }
+
         #endregion
 
         #region Constructors
@@ -137,17 +184,42 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public MainPageViewModel()
         {
-            _currentImage = new ImageModel();
-
             AddImagesCommand = new DelegateCommand(AddImages);
+            RemoveImageCommand = new DelegateCommand<ImageModel>(RemoveImage);
             SwitchListVisibilityCommand = new DelegateCommand(SwitchListVisibility);
             SwitchEditBarVisibilityCommand = new DelegateCommand(SwitchEditBarVisibility);
             ZoomInCommand = new DelegateCommand(ZoomIn);
             ZoomOutCommand = new DelegateCommand(ZoomOut);
             RotateLeftCommand = new DelegateCommand(RotateLeft);
             RotateRightCommand = new DelegateCommand(RotateRight);
+            SelectionChangedCommand = new DelegateCommand(SelectionChanged);
 
             Images = new ObservableCollection<ImageModel>();
+
+            _db = new ApplicationContext();
+
+            foreach(var model in _db.GetImageModels())
+            {
+                if (!File.Exists(model.FullPath)) continue;
+                Images.Add(model);
+            }
+
+            var page = _db.GetPageModels().FirstOrDefault();
+
+            if(page == null)
+            {
+                CurrentPage = new PageModel(false, false, 0);
+                _db.InsertPageModel(CurrentPage);
+            }
+            else
+            {
+                CurrentPage = page;
+            }
+
+            CurrentImage = _db.GetImageModels().FirstOrDefault(model => model.ID == CurrentPage.ImageModelID);
+
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            _ea = container.Resolve<IEventAggregator>();
         }
 
         #endregion
@@ -174,6 +246,7 @@ namespace ImageViewer.ViewModels
                         var image = new ImageModel(file);
                         if (Images.Contains(image)) continue;
                         Images.Add(image);
+                        _db.InsertImageModel(image);
                     }
                 }
             }
@@ -184,7 +257,9 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public void SwitchListVisibility()
         {
-            IsListVisible = !IsListVisible;
+            CurrentPage.IsListVisible = !CurrentPage.IsListVisible;
+
+            _db.UpdatePageModel(CurrentPage);
         }
 
         /// <summary>
@@ -192,7 +267,9 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public void SwitchEditBarVisibility()
         {
-            IsEditBarVisible = !IsEditBarVisible;
+            CurrentPage.IsEditBarVisible = !CurrentPage.IsEditBarVisible;
+
+            _db.UpdatePageModel(CurrentPage);
         }
 
         /// <summary>
@@ -202,6 +279,8 @@ namespace ImageViewer.ViewModels
         {
             CurrentImage.ScaleX *= ScaleIn;
             CurrentImage.ScaleY *= ScaleIn;
+
+            _db.UpdateImageModel(CurrentImage);
         }
 
         /// <summary>
@@ -211,6 +290,8 @@ namespace ImageViewer.ViewModels
         {
             CurrentImage.ScaleX *= ScaleOut;
             CurrentImage.ScaleY *= ScaleOut;
+
+            _db.UpdateImageModel(CurrentImage);
         }
 
         /// <summary>
@@ -219,6 +300,8 @@ namespace ImageViewer.ViewModels
         public void RotateLeft()
         {
             CurrentImage.Angle -= RotationAngle;
+
+            _db.UpdateImageModel(CurrentImage);
         }
 
         /// <summary>
@@ -227,6 +310,30 @@ namespace ImageViewer.ViewModels
         public void RotateRight()
         {
             CurrentImage.Angle += RotationAngle;
+
+            _db.UpdateImageModel(CurrentImage);
+        }
+
+        /// <summary>
+        /// Removes ImageModel from list
+        /// </summary>
+        /// <param name="imageModel">ImageModel to remove</param>
+        private void RemoveImage(ImageModel imageModel)
+        {
+            Images.Remove(imageModel);
+            _db.RemoveImageModel(imageModel.ID);
+        }
+
+        /// <summary>
+        /// Changes current image
+        /// </summary>
+        private void SelectionChanged()
+        {
+            CurrentPage.ImageModelID = CurrentImage != null ? CurrentImage.ID : CurrentPage.ImageModelID - 1;
+
+            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
+
+            _db.UpdatePageModel(CurrentPage);
         }
     }
 }

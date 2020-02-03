@@ -1,5 +1,4 @@
 ﻿using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -42,6 +41,11 @@ namespace ImageViewer.Models
         #endregion
 
         #region Public Properties
+
+        /// <summary>
+        /// ID of image
+        /// </summary>
+        public int ID { get; set; }
 
         /// <summary>
         /// Full path to image

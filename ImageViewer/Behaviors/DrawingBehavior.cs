@@ -8,6 +8,13 @@ using ImageViewer.Adorners;
 using System.Windows.Documents;
 using System.Collections.Generic;
 using Prism.Commands;
+using Unity;
+using Prism.Events;
+using CommonServiceLocator;
+using ImageViewer.EventAggregators;
+using ImageViewer.DatabaseContext;
+using System.Linq;
+using ImageViewer.Models;
 
 namespace ImageViewer.Behaviors
 {
@@ -77,6 +84,11 @@ namespace ImageViewer.Behaviors
         private bool _drawLine;
 
         /// <summary>
+        /// ID of current image
+        /// </summary>
+        private int _imageModelID;
+
+        /// <summary>
         /// Adorners that will be added to image adorner layer
         /// </summary>
         private readonly List<GeometryAdorner> _adorners = new List<GeometryAdorner>();
@@ -86,7 +98,27 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private AdornerLayer _layer;
 
+        /// <summary>
+        /// Data context to manage database
+        /// </summary>
+        private readonly ApplicationContext _db = new ApplicationContext();
+
+        /// <summary>
+        /// Event Aggregator to subscribe to <see cref="IdSentEvent"/> event
+        /// </summary>
+        private readonly IEventAggregator _ea;
+
         #endregion
+
+        /// <summary>
+        /// Constructor to subscribe to <see cref="IdSentEvent"/> event aggregator
+        /// </summary>
+        public DrawingBehavior()
+        {
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            _ea = container.Resolve<IEventAggregator>();
+            _ea.GetEvent<IdSentEvent>().Subscribe(DrawGeometries);
+        }
 
         #region Commands
 
@@ -115,6 +147,7 @@ namespace ImageViewer.Behaviors
 
             AssociatedObject.MouseDown += OnMouseDown;
             AssociatedObject.MouseMove += OnMouseMove;
+            AssociatedObject.MouseUp += OnMouseUp;
         }
 
         protected override void OnDetaching()
@@ -123,6 +156,7 @@ namespace ImageViewer.Behaviors
 
             AssociatedObject.MouseLeftButtonDown -= OnMouseDown;
             AssociatedObject.MouseMove -= OnMouseMove;
+            AssociatedObject.MouseUp -= OnMouseUp;
         }
 
         /// <summary>
@@ -150,6 +184,7 @@ namespace ImageViewer.Behaviors
 
             adorner.MouseMove += OnMouseMove;
             adorner.MouseDown += OnMouseDown;
+            adorner.MouseUp += OnMouseUp;
         }
 
         /// <summary>
@@ -172,7 +207,18 @@ namespace ImageViewer.Behaviors
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Insert <see cref="EditModel"/> into database
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            if (_adorners.Last().Geometry == null) return;
+
+            var path = _adorners.Last().Geometry.GetFlattenedPathGeometry().ToString();
+            _db.InsertEditModel(new EditModel(_imageModelID, path));
+        }
 
         /// <summary>
         /// Draw a rectangle
@@ -268,5 +314,47 @@ namespace ImageViewer.Behaviors
             _drawCircle = false;
             _drawLine = !_drawLine;
         }
+
+        /// <summary>
+        /// Gets all geometries related to image with <paramref name="imageModelID"/> from database and draws them
+        /// </summary>
+        /// <param name="imageModelID">ID of image</param>
+        private void DrawGeometries(int imageModelID)
+        {
+            if (_layer == null)
+            {
+                _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            }
+
+            foreach (var adorner in _adorners)
+            {
+                _layer.Remove(adorner);
+            }
+
+            _imageModelID = imageModelID;
+
+            var shapes = _db.GetEditModels().Where(m => m.ImageModelID == _imageModelID);
+
+            foreach (var shape in shapes)
+            {
+                var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
+                {
+                    Cursor = Cursors.Hand,
+                    BorderBrush = SolidColorBrush,
+                    BorderThickness = Thickness,
+                    BackgroundOpacity = Opacity,
+                    BackgroundColor = Background
+                };
+
+                adorner.MouseMove += OnMouseMove;
+                adorner.MouseDown += OnMouseDown;
+                adorner.MouseUp += OnMouseUp;
+
+                _adorners.Add(adorner);
+                _layer.Add(adorner);
+            }
+        }
+
+        #endregion
     }
 }
