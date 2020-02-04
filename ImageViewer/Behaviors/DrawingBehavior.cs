@@ -118,6 +118,9 @@ namespace ImageViewer.Behaviors
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             _ea = container.Resolve<IEventAggregator>();
             _ea.GetEvent<IdSentEvent>().Subscribe(DrawGeometries);
+
+            var page = _db.GetPageModels().FirstOrDefault();
+            _imageModelID = _db.GetImageModels().FirstOrDefault(m => m.ID == page.ImageModelID).ID;
         }
 
         #region Commands
@@ -145,9 +148,11 @@ namespace ImageViewer.Behaviors
         {
             base.OnAttached();
 
-            AssociatedObject.MouseDown += OnMouseDown;
+            AssociatedObject.MouseLeftButtonDown += OnMouseDown;
             AssociatedObject.MouseMove += OnMouseMove;
             AssociatedObject.MouseUp += OnMouseUp;
+
+            AssociatedObject.Loaded += AssociatedObject_Loaded;
         }
 
         protected override void OnDetaching()
@@ -157,6 +162,8 @@ namespace ImageViewer.Behaviors
             AssociatedObject.MouseLeftButtonDown -= OnMouseDown;
             AssociatedObject.MouseMove -= OnMouseMove;
             AssociatedObject.MouseUp -= OnMouseUp;
+
+            AssociatedObject.Loaded -= AssociatedObject_Loaded;
         }
 
         /// <summary>
@@ -183,7 +190,7 @@ namespace ImageViewer.Behaviors
             _adorners.Add(adorner);
 
             adorner.MouseMove += OnMouseMove;
-            adorner.MouseDown += OnMouseDown;
+            adorner.MouseLeftButtonDown += OnMouseDown;
             adorner.MouseUp += OnMouseUp;
         }
 
@@ -199,11 +206,11 @@ namespace ImageViewer.Behaviors
                 _endPoint = e.GetPosition(AssociatedObject);
 
                 if (_drawRectangle)
-                    DrawRectangle(_adorners[_adorners.Count - 1]);
+                    DrawRectangle(_adorners.Last());
                 if (_drawCircle)
-                    DrawCircle(_adorners[_adorners.Count - 1]);
+                    DrawCircle(_adorners.Last());
                 if (_drawLine)
-                    DrawLine(_adorners[_adorners.Count - 1]);
+                    DrawLine(_adorners.Last());
             }
         }
 
@@ -218,6 +225,16 @@ namespace ImageViewer.Behaviors
 
             var path = _adorners.Last().Geometry.GetFlattenedPathGeometry().ToString();
             _db.InsertEditModel(new EditModel(_imageModelID, path));
+        }
+
+        /// <summary>
+        /// Draw all geometries above image after it`s first load
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
+        {
+            DrawGeometries(_imageModelID);
         }
 
         /// <summary>
@@ -347,7 +364,7 @@ namespace ImageViewer.Behaviors
                 };
 
                 adorner.MouseMove += OnMouseMove;
-                adorner.MouseDown += OnMouseDown;
+                adorner.MouseLeftButtonDown += OnMouseDown;
                 adorner.MouseUp += OnMouseUp;
 
                 _adorners.Add(adorner);

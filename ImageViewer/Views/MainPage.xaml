@@ -14,13 +14,13 @@
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1200"
       Title="MainPage">
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            
+
             <!-- The image and the side bars -->
             <RowDefinition Height="*"/>
-            
+
             <!-- Bottom dropshadow -->
             <RowDefinition Height="Auto"/>
 
@@ -32,7 +32,7 @@
         <!-- Main Container -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                
+
                 <!-- Image List -->
                 <ColumnDefinition Width="Auto"/>
 
@@ -60,11 +60,13 @@
 
             <!-- Scrollviewer to make sure that can see a whole image-->
             <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                
+
                 <!-- The image -->
                 <Image RenderTransformOrigin="0.5, 0.5"
                            VerticalAlignment="Center"
-                           x:Name="CurrentImage"
+                           attachedPropetries:SizeObserver.Observe="True"
+                           attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
+                           attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
                            Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
 
                     <Image.LayoutTransform>
@@ -75,7 +77,7 @@
                     </Image.LayoutTransform>
 
                     <i:Interaction.Behaviors>
-                        
+
                         <!-- Behavior that allows user to crop, copy and save the image -->
                         <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
 
@@ -83,7 +85,7 @@
                         <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
                                                    SolidColorBrush="Blue"
                                                    Background="Purple"
-                                                   Thickness="10"
+                                                   Thickness="{Binding LineThickness, UpdateSourceTrigger=PropertyChanged, Mode=OneWay}"
                                                    Opacity="0.5"/>
                     </i:Interaction.Behaviors>
 

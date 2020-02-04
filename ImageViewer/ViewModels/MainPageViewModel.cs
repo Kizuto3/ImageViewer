@@ -11,6 +11,7 @@ using Prism.Events;
 using ImageViewer.EventAggregators;
 using CommonServiceLocator;
 using Unity;
+using System;
 
 namespace ImageViewer.ViewModels
 {
@@ -36,16 +37,6 @@ namespace ImageViewer.ViewModels
         /// Current page
         /// </summary>
         private PageModel _currentPage;
-
-        /// <summary>
-        /// Defines if list is visible to user or not
-        /// </summary>
-        private bool _isListVisible;
-
-        /// <summary>
-        /// Defines if edit bar is visible to user or not
-        /// </summary>
-        private bool _isEditBarVisible;
 
         /// <summary>
         /// Database context to manage database
@@ -91,33 +82,11 @@ namespace ImageViewer.ViewModels
             }
         }
 
-        /// <summary>
-        /// Defines if list is visible to user or not
-        /// </summary>
-        public bool IsListVisible
+        public double LineThickness
         {
             get
             {
-                return _isListVisible;
-            }
-            set
-            {
-                SetProperty(ref _isListVisible, value);
-            }
-        }
-
-        /// <summary>
-        /// Defines if edit bar is visible to user or not
-        /// </summary>
-        public bool IsEditBarVisible
-        {
-            get
-            {
-                return _isEditBarVisible;
-            }
-            set
-            {
-                SetProperty(ref _isEditBarVisible, value);
+                return 5 / CurrentImage.ScaleY;
             }
         }
 
@@ -223,6 +192,8 @@ namespace ImageViewer.ViewModels
         }
 
         #endregion
+
+        #region Methods
 
         /// <summary>
         /// Add images to observable collection
@@ -335,5 +306,7 @@ namespace ImageViewer.ViewModels
 
             _db.UpdatePageModel(CurrentPage);
         }
+
+        #endregion
     }
 }

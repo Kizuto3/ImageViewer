@@ -99,7 +99,7 @@ namespace ImageViewer.DatabaseContext
                                               "\"Left\"  FLOAT," +
 	                                          "\"Top\"   FLOAT," +
 	                                          "\"Width\" FLOAT," +
-	                                          "\"Height\"    FLOAT," +
+	                                          "\"Height\" FLOAT," +
 	                                          "\"State\" INTEGER," +
 	                                          "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE)";
 
