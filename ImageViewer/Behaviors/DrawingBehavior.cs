@@ -119,8 +119,8 @@ namespace ImageViewer.Behaviors
             _ea = container.Resolve<IEventAggregator>();
             _ea.GetEvent<IdSentEvent>().Subscribe(DrawGeometries);
 
-            var page = _db.GetPageModels().FirstOrDefault();
-            _imageModelID = _db.GetImageModels().FirstOrDefault(m => m.ID == page.ImageModelID).ID;
+            var page = _db.GetPageModel();
+            _imageModelID = _db.GetImageModel(page.ImageModelID).ID;
         }
 
         #region Commands
@@ -350,7 +350,7 @@ namespace ImageViewer.Behaviors
 
             _imageModelID = imageModelID;
 
-            var shapes = _db.GetEditModels().Where(m => m.ImageModelID == _imageModelID);
+            var shapes = _db.GetEditModels(imageModelID);
 
             foreach (var shape in shapes)
             {

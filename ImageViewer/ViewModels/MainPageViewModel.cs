@@ -167,13 +167,13 @@ namespace ImageViewer.ViewModels
 
             _db = new ApplicationContext();
 
-            foreach(var model in _db.GetImageModels())
+            foreach(var model in _db.GetImageModels().Result)
             {
                 if (!File.Exists(model.FullPath)) continue;
                 Images.Add(model);
             }
 
-            var page = _db.GetPageModels().FirstOrDefault();
+            var page = _db.GetPageModel();
 
             if(page == null)
             {
@@ -185,7 +185,7 @@ namespace ImageViewer.ViewModels
                 CurrentPage = page;
             }
 
-            CurrentImage = _db.GetImageModels().FirstOrDefault(model => model.ID == CurrentPage.ImageModelID);
+            CurrentImage = _db.GetImageModel(CurrentPage.ImageModelID);
 
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             _ea = container.Resolve<IEventAggregator>();
@@ -217,7 +217,7 @@ namespace ImageViewer.ViewModels
                         var image = new ImageModel(file);
                         if (Images.Contains(image)) continue;
                         _db.InsertImageModel(image);
-                        Images.Add(_db.GetImageModels().Last());
+                        Images.Add(_db.GetImageModels().Result.Last());
                     }
                 }
             }
@@ -291,6 +291,12 @@ namespace ImageViewer.ViewModels
         /// <param name="imageModel">ImageModel to remove</param>
         private void RemoveImage(ImageModel imageModel)
         {
+            if(Images.Count == 0)
+            {
+                return;
+            }
+            var index = (Images.IndexOf(imageModel) - 1) >= 0 ? Images.IndexOf(imageModel) - 1 : 1;
+            CurrentImage = Images.ElementAt(index >= Images.Count ? 0 : index);
             Images.Remove(imageModel);
             _db.RemoveImageModel(imageModel.ID);
         }

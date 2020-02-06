@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace ImageViewer.DatabaseContext
 {
@@ -71,9 +72,10 @@ namespace ImageViewer.DatabaseContext
             if (File.Exists("master.db")) return;
 
             SQLiteConnection.CreateFile("master.db");
-            using (var connection = new SQLiteConnection(_connectionString))
+            OpenConnection();
+            using (_SQLiteConnection)
             {
-                connection.Open();
+                _SQLiteConnection.Open();
 
                 var createImageModelsTable = "CREATE TABLE \"ImageModels\" (" +
                                              "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
@@ -82,7 +84,7 @@ namespace ImageViewer.DatabaseContext
 	                                         "\"ScaleY\"    FLOAT," +
 	                                         "\"Angle\" FLOAT)";
 
-                var command = new SQLiteCommand(createImageModelsTable, connection);
+                var command = new SQLiteCommand(createImageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
                 var createPageModelsTable = "CREATE TABLE \"PageModels\" (" +
@@ -92,7 +94,7 @@ namespace ImageViewer.DatabaseContext
 	                                        "\"ImageModelID\"  INTEGER," +
 	                                        "FOREIGN KEY(\"ImageModelID\") REFERENCES \"ImageModels\"(\"ID\"))";
 
-                command = new SQLiteCommand(createPageModelsTable, connection);
+                command = new SQLiteCommand(createPageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
                 var createWindowModelsTable = "CREATE TABLE \"WindowModels\" (" +
@@ -103,7 +105,7 @@ namespace ImageViewer.DatabaseContext
 	                                          "\"State\" INTEGER," +
 	                                          "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE)";
 
-                command = new SQLiteCommand(createWindowModelsTable, connection);
+                command = new SQLiteCommand(createWindowModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
                 var createEditModelsTable = "CREATE TABLE \"EditModels\" (" +
@@ -112,7 +114,7 @@ namespace ImageViewer.DatabaseContext
                                             "\"ImageModelID\"  INTEGER," +
                                             "FOREIGN KEY(\"ImageModelID\") REFERENCES \"ImageModels\"(\"ID\"))";
 
-                command = new SQLiteCommand(createEditModelsTable, connection);
+                command = new SQLiteCommand(createEditModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
             }
         }
@@ -123,7 +125,7 @@ namespace ImageViewer.DatabaseContext
         /// Get all <see cref="ImageModel"/> from database
         /// </summary>
         /// <returns></returns>
-        public List<ImageModel> GetImageModels()
+        public async Task<List<ImageModel>> GetImageModels()
         {
             OpenConnection();
 
@@ -133,27 +135,49 @@ namespace ImageViewer.DatabaseContext
 
             using (_SQLiteConnection)
             { 
-                imageModels = _SQLiteConnection.Query<ImageModel>(query).AsList();
+                var result = await _SQLiteConnection.QueryAsync<ImageModel>(query);
+
+                imageModels = result.AsList();
             }
 
             return imageModels;
         }
 
         /// <summary>
-        /// Get all <see cref="PageModel"/> from database
+        /// Get <see cref="ImageModel"/> with <paramref name="imageModelID"/> from database
         /// </summary>
         /// <returns></returns>
-        public List<PageModel> GetPageModels()
+        public ImageModel GetImageModel(int imageModelID)
         {
             OpenConnection();
 
-            List<PageModel> pageModels = new List<PageModel>();
+            ImageModel imageModels = new ImageModel();
+
+            string query = $"SELECT * FROM [ImageModels] WHERE ID = {imageModelID}";
+
+            using (_SQLiteConnection)
+            {
+                imageModels = _SQLiteConnection.QuerySingleOrDefault<ImageModel>(query);
+            }
+
+            return imageModels ?? new ImageModel();
+        }
+
+        /// <summary>
+        /// Get all <see cref="PageModel"/> from database
+        /// </summary>
+        /// <returns></returns>
+        public PageModel GetPageModel()
+        {
+            OpenConnection();
+
+            PageModel pageModels = new PageModel();
 
             const string query = "SELECT * FROM [PageModels]";
 
             using (_SQLiteConnection)
             {
-                pageModels = _SQLiteConnection.Query<PageModel>(query).AsList();
+                pageModels = _SQLiteConnection.QuerySingleOrDefault<PageModel>(query);
             }
 
             return pageModels;
@@ -163,17 +187,17 @@ namespace ImageViewer.DatabaseContext
         /// Get all <see cref="WindowModel"/> from database
         /// </summary>
         /// <returns></returns>
-        public List<WindowModel> GetWindowModels()
+        public WindowModel GetWindowModel()
         {
             OpenConnection();
 
-            List<WindowModel> windowModels = new List<WindowModel>();
+            WindowModel windowModels = new WindowModel();
 
             const string query = "SELECT * FROM [WindowModels]";
 
             using (_SQLiteConnection)
             {
-                windowModels = _SQLiteConnection.Query<WindowModel>(query).AsList();
+                windowModels = _SQLiteConnection.QuerySingleOrDefault<WindowModel>(query);
             }
 
             return windowModels;
@@ -183,13 +207,13 @@ namespace ImageViewer.DatabaseContext
         /// Get all <see cref="EditModel"/> from database
         /// </summary>
         /// <returns></returns>
-        public List<EditModel> GetEditModels()
+        public List<EditModel> GetEditModels(int imageModelID)
         {
             OpenConnection();
 
             List<EditModel> editModels = new List<EditModel>();
 
-            const string query = "SELECT * FROM [EditModels]";
+            string query = $"SELECT * FROM [EditModels] WHERE [ImageModelID] = {imageModelID}";
 
             using (_SQLiteConnection)
             {
@@ -207,7 +231,7 @@ namespace ImageViewer.DatabaseContext
         /// Insert <see cref="ImageModel"/> into database using parametrized query
         /// </summary>
         /// <param name="imageModel"></param>
-        public void InsertImageModel(ImageModel imageModel)
+        public async void InsertImageModel(ImageModel imageModel)
         {
             OpenConnection();
 
@@ -247,7 +271,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -257,7 +281,7 @@ namespace ImageViewer.DatabaseContext
         /// Insert <see cref="WindowModel"/> into database using parametrized query
         /// </summary>
         /// <param name="windowModel"></param>
-        public void InsertWindowModel(WindowModel windowModel)
+        public async void InsertWindowModel(WindowModel windowModel)
         {
             OpenConnection();
 
@@ -305,7 +329,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -315,7 +339,7 @@ namespace ImageViewer.DatabaseContext
         /// Insert <see cref="PageModel"/> into database using parametrized query
         /// </summary>
         /// <param name="pageModel"></param>
-        public void InsertPageModel(PageModel pageModel)
+        public async void InsertPageModel(PageModel pageModel)
         {
             OpenConnection();
 
@@ -347,7 +371,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -357,7 +381,7 @@ namespace ImageViewer.DatabaseContext
         /// Insert <see cref="EditModel"/> into database using parametrized query
         /// </summary>
         /// <param name="editModel"></param>
-        public void InsertEditModel(EditModel editModel)
+        public async void InsertEditModel(EditModel editModel)
         {
             OpenConnection();
 
@@ -381,7 +405,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -395,7 +419,7 @@ namespace ImageViewer.DatabaseContext
         /// Update <see cref="ImageModel"/> by it`s ID
         /// </summary>
         /// <param name="imageModel"></param>
-        public void UpdateImageModel(ImageModel imageModel)
+        public async void UpdateImageModel(ImageModel imageModel)
         {
             OpenConnection();
 
@@ -436,7 +460,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -446,7 +470,7 @@ namespace ImageViewer.DatabaseContext
         /// Update <see cref="PageModel"/> by it`s ID
         /// </summary>
         /// <param name="pageModel"></param>
-        public void UpdatePageModel(PageModel pageModel)
+        public async void UpdatePageModel(PageModel pageModel)
         {
             OpenConnection();
 
@@ -487,7 +511,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -497,7 +521,7 @@ namespace ImageViewer.DatabaseContext
         /// Update <see cref="WindowModel"/> by it`s ID
         /// </summary>
         /// <param name="windowModel"></param>
-        public void UpdateWindowModel(WindowModel windowModel)
+        public async void UpdateWindowModel(WindowModel windowModel)
         {
             OpenConnection();
 
@@ -554,7 +578,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();
@@ -568,7 +592,7 @@ namespace ImageViewer.DatabaseContext
         /// Remove <see cref="ImageModel"/> from database by ID
         /// </summary>
         /// <param name="imageModelID"></param>
-        public void RemoveImageModel(int imageModelID)
+        public async void RemoveImageModel(int imageModelID)
         {
             OpenConnection();
 
@@ -584,7 +608,7 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
-                command.ExecuteNonQuery();
+                await command.ExecuteNonQueryAsync();
             }
 
             CloseConnection();

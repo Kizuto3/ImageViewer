@@ -1,10 +1,7 @@
 ﻿using ImageViewer.Abstractions;
 using ImageViewer.DatabaseContext;
 using ImageViewer.Models;
-using Prism.Commands;
 using Prism.Mvvm;
-using System.Linq;
-using System.Windows;
 
 namespace ImageViewer.ViewModels
 {
@@ -24,6 +21,16 @@ namespace ImageViewer.ViewModels
         /// Data context to manage database
         /// </summary>
         private readonly ApplicationContext _db;
+
+        /// <summary>
+        /// Corner`s radius of the window
+        /// </summary>
+        private readonly int _windowCornerRadius = 10;
+
+        /// <summary>
+        /// Padding of the window
+        /// </summary>
+        private readonly double _windowPadding = 5d;
 
         #endregion
 
@@ -49,14 +56,27 @@ namespace ImageViewer.ViewModels
             }
         }
 
-        #endregion
-
-        #region Commands
+        /// <summary>
+        /// Corner`s radius of the window
+        /// </summary>
+        public int WindowCornerRadius
+        {
+            get
+            {
+                return CurrentWindow.State == 0 ? _windowCornerRadius : 0;
+            }
+        }
 
         /// <summary>
-        /// Command to close window and save changes
+        /// Padding of the window
         /// </summary>
-        public DelegateCommand<Window> CloseCommand { get; }
+        public double WindowPadding
+        {
+            get
+            {
+                return CurrentWindow.State == 0 ? _windowPadding : 0d;
+            }
+        }
 
         #endregion
 
@@ -67,11 +87,9 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public MainWindowViewModel()
         {
-            CloseCommand = new DelegateCommand<Window>(CloseWindow);
-
             _db = new ApplicationContext();
 
-            var window = _db.GetWindowModels().FirstOrDefault();
+            var window = _db.GetWindowModel();
 
             if (window == null)
             {
@@ -91,12 +109,9 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Close window and save changes
         /// </summary>
-        /// <param name="window"></param>
-        private void CloseWindow(Window window)
+        public void SaveChanges()
         {
             _db.UpdateWindowModel(CurrentWindow);
-
-            window.Close();
         }
 
         #endregion

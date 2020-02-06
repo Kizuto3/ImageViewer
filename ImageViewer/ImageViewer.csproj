@@ -160,6 +160,8 @@
     <Compile Include="Models\ImageModel.cs" />
     <Compile Include="Models\PageModel.cs" />
     <Compile Include="Models\WindowModel.cs" />
+    <Compile Include="ValueConverters\IntToCornerRadiusConverter.cs" />
+    <Compile Include="ValueConverters\IntToPaddingConverter.cs" />
     <Compile Include="ValueConverters\IntToWindowStateConverter.cs" />
     <Compile Include="Views\UserControls\ImageListControl.xaml.cs">
       <DependentUpon>ImageListControl.xaml</DependentUpon>

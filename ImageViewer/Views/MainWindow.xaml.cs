@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using ImageViewer.ViewModels;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ImageViewer.Views
@@ -11,6 +12,18 @@ namespace ImageViewer.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        /// <summary>
+        /// Close the window and save changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void CloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            var viewModel = DataContext as MainWindowViewModel;
+            viewModel.SaveChanges();
+            Close();
         }
 
         /// <summary>

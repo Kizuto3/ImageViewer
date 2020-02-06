@@ -9,32 +9,32 @@ namespace ImageViewer.Models
         #region Private Members
 
         /// <summary>
-        /// Full path to an image 
+        /// Full path to the image 
         /// </summary>
         private string _fullPath;
 
         /// <summary>
-        /// Scale of an image
+        /// Scale of the image
         /// </summary>
         private double _scaleX;
 
         /// <summary>
-        /// Scale of an image
+        /// Scale of the image
         /// </summary>
         private double _scaleY;
 
         /// <summary>
-        /// Rotation angle of an image
+        /// Rotation angle of the image
         /// </summary>
         private double _angle;
 
         /// <summary>
-        /// Actual width of an image
+        /// Actual width of the image
         /// </summary>
         private double _width;
 
         /// <summary>
-        /// Actual height of an image
+        /// Actual height of the image
         /// </summary>
         private double _height;
 
@@ -43,12 +43,12 @@ namespace ImageViewer.Models
         #region Public Properties
 
         /// <summary>
-        /// ID of image
+        /// ID of the image
         /// </summary>
         public int ID { get; set; }
 
         /// <summary>
-        /// Full path to image
+        /// Full path to the image
         /// </summary>
         public string FullPath
         {
@@ -63,7 +63,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Scale of image
+        /// Scale of the image
         /// </summary>
         public double ScaleX
         {
@@ -78,7 +78,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Scale of image
+        /// Scale of the image
         /// </summary>
         public double ScaleY
         {
@@ -93,7 +93,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Rotation angle of image
+        /// Rotation angle of the image
         /// </summary>
         public double Angle
         {
@@ -108,7 +108,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Actual width of an image
+        /// Actual width of the image
         /// </summary>
         public double Width
         {
@@ -123,7 +123,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Actual height of an image
+        /// Actual height of the image
         /// </summary>
         public double Height
         {

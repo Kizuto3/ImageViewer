@@ -27,7 +27,7 @@
                     <ControlTemplate TargetType="{x:Type Window}">
                         
                         <!-- Outer border with the dropshadow margin -->
-                        <Border Padding="10">
+                        <Border Padding="{Binding WindowPadding, Converter={converters:IntToPaddingConverter}}">
                             
                             <!-- Main window outline -->
                             <Grid>
@@ -35,11 +35,11 @@
                                 <!-- Opacity mask for corners on grid-->
                                 <Border x:Name="Container"
                                         Background="{StaticResource BackgroudLightBrush}"
-                                        CornerRadius="6"/>
+                                        CornerRadius="{Binding WindowCornerRadius, Converter={converters:IntToCornerRadiusConverter}}"/>
 
                                 <!-- Window border and dropshadow -->
-                                <Border CornerRadius="6"
-                                        Background="{Binding ForegroundLightBrush, FallbackValue=White}">
+                                <Border CornerRadius="{Binding WindowCornerRadius, Converter={converters:IntToCornerRadiusConverter}}"
+                                        Background="{StaticResource ForegroundLightBrush}">
                                     <Border.Effect>
                                         <DropShadowEffect ShadowDepth="0" Opacity="0.2"/>
                                     </Border.Effect>
@@ -85,7 +85,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             
                                             <!-- Close button (red) -->
-                                            <Button Style="{StaticResource Backgroundless}" x:Name="CloseButton" Command="{Binding CloseCommand, Mode=OneWay}" CommandParameter="{Binding ElementName=AppWindow}">
+                                            <Button Style="{StaticResource Backgroundless}" x:Name="CloseButton" Click="CloseButton_Click">
                                                 <Ellipse Width="20" Height="20" Fill="Red"/>
                                             </Button>
                                             
@@ -105,7 +105,7 @@
                                         <TextBlock  Grid.Column="0" Grid.ColumnSpan="3" FontSize="22" TextTrimming="CharacterEllipsis" Style="{StaticResource HeaderText}"  Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Title, FallbackValue='Welcome, friend!'}"/>
 
                                         <!-- Icon -->
-                                        <Button Grid.Column="2" Padding="6" Style="{StaticResource SystemIconButton}" x:Name="MenuButton" MouseUp="MenuButton_MouseUp">
+                                        <Button Grid.Column="2" Padding="10" Style="{StaticResource SystemIconButton}" x:Name="MenuButton" MouseUp="MenuButton_MouseUp">
                                             <Image Source="{StaticResource LogoDrawingImage}"/>
                                         </Button>
 
