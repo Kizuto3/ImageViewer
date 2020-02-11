@@ -1,0 +1,54 @@
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:ImageViewer.Views.CustomControls"
+    xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
+    xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
+    xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+    xmlns:behaviors="clr-namespace:ImageViewer.Behaviors"
+    xmlns:views="clr-namespace:ImageViewer.Views">
+
+    <Style TargetType="{x:Type local:ImagePresenterControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:ImagePresenterControl}">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+
+                        <!-- The image -->
+                        <Image RenderTransformOrigin="0.5, 0.5"
+                               VerticalAlignment="Center"
+                               attachedPropetries:SizeObserver.Observe="{TemplateBinding attachedPropetries:SizeObserver.Observe}"
+                               attachedPropetries:SizeObserver.ObservedHeight="{TemplateBinding attachedPropetries:SizeObserver.ObservedHeight}"
+                               attachedPropetries:SizeObserver.ObservedWidth="{TemplateBinding attachedPropetries:SizeObserver.ObservedWidth}"
+                               Source="{TemplateBinding ImageSource}">
+
+                            <Image.LayoutTransform>
+                                <TransformGroup>
+                                    <ScaleTransform ScaleX="{TemplateBinding ScaleX}" 
+                                                    ScaleY="{TemplateBinding ScaleY}"/>
+                                    
+                                    <RotateTransform Angle="{TemplateBinding RotationAngle}"/>
+                                </TransformGroup>
+                            </Image.LayoutTransform>
+
+                            <i:Interaction.Behaviors>
+
+                                <!-- Behavior that allows user to crop, copy and save the image -->
+                                <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
+
+                                <!-- Behavior that allows user to draw shapes on the image -->
+                                <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
+                                                           BorderColorBrush="Blue"
+                                                           BackgroundColor="Purple"
+                                                           BorderThickness="5"
+                                                           BackgroundOpacity="0.5"/>
+                            </i:Interaction.Behaviors>
+
+                        </Image>
+
+                    </ScrollViewer>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

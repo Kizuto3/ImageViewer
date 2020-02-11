@@ -147,7 +147,7 @@ namespace ImageViewer.Models
                 return Path.GetFileName(_fullPath);
             }
         }
-
+            
         #endregion
 
         /// <summary>

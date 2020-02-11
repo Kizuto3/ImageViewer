@@ -15,6 +15,7 @@ using ImageViewer.EventAggregators;
 using ImageViewer.DatabaseContext;
 using System.Linq;
 using ImageViewer.Models;
+using ImageViewer.Abstractions;
 
 namespace ImageViewer.Behaviors
 {
@@ -22,36 +23,60 @@ namespace ImageViewer.Behaviors
     {
         #region Properties
 
-        public DependencyProperty SolidColorBrushProperty = DependencyProperty.Register(nameof(SolidColorBrush), typeof(SolidColorBrush), typeof(DrawingBehavior), new PropertyMetadata(Brushes.Fuchsia));
+        /// <summary>
+        /// Dependency property to set up a geometry`s border color
+        /// </summary>
+        public DependencyProperty BorderColorBrushProperty = DependencyProperty.Register(nameof(BorderColorBrush), typeof(SolidColorBrush), typeof(DrawingBehavior), new PropertyMetadata(Brushes.Fuchsia));
 
-        public DependencyProperty ThicknessProperty = DependencyProperty.Register(nameof(Thickness), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
+        /// <summary>
+        /// Dependency property to set up a thickness of geometry`s border
+        /// </summary>
+        public DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
 
-        public DependencyProperty OpacityProperty = DependencyProperty.Register(nameof(Opacity), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
+        /// <summary>
+        /// Dependency property to set up an opacity of a geometry
+        /// </summary>
+        public DependencyProperty BackgroundOpacityProperty = DependencyProperty.Register(nameof(BackgroundOpacity), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
 
-        public DependencyProperty BackgroundProperty = DependencyProperty.Register(nameof(Background), typeof(Color), typeof(DrawingBehavior), new PropertyMetadata(Colors.Transparent));
+        /// <summary>
+        /// Dependency property to set up a background color of a geometry
+        /// </summary>
+        public DependencyProperty BackgroundColorProperty = DependencyProperty.Register(nameof(BackgroundColor), typeof(Color), typeof(DrawingBehavior), new PropertyMetadata(Colors.Transparent));
 
-        public SolidColorBrush SolidColorBrush
+        /// <summary>
+        /// A geometry`s border color
+        /// </summary>
+        public SolidColorBrush BorderColorBrush
         {
-            get => (SolidColorBrush)GetValue(SolidColorBrushProperty);
-            set => SetValue(SolidColorBrushProperty, value);
+            get => (SolidColorBrush)GetValue(BorderColorBrushProperty);
+            set => SetValue(BorderColorBrushProperty, value);
         }
 
-        public double Thickness
+        /// <summary>
+        /// A thickness of geometry`s border
+        /// </summary>
+        public double BorderThickness
         {
-            get => (double)GetValue(ThicknessProperty);
-            set => SetValue(ThicknessProperty, value);
+            get => (double)GetValue(BorderThicknessProperty);
+            set => SetValue(BorderThicknessProperty, value);
         }
 
-        public double Opacity
+        /// <summary>
+        /// An opacity of a geometry
+        /// </summary>
+        public double BackgroundOpacity
         {
-            get => (double)GetValue(OpacityProperty);
-            set => SetValue(OpacityProperty, value);
+            get => (double)GetValue(BackgroundOpacityProperty);
+            set => SetValue(BackgroundOpacityProperty, value);
         }
 
-        public Color Background
+        /// <summary>
+        /// A background color of a geometry
+        /// </summary>
+        public Color BackgroundColor
         {
-            get => (Color)GetValue(BackgroundProperty);
-            set => SetValue(BackgroundProperty, value);
+            get => (Color)GetValue(BackgroundColorProperty);
+            set => SetValue(BackgroundColorProperty, value);
         }
 
         #endregion
@@ -69,19 +94,9 @@ namespace ImageViewer.Behaviors
         private Point _endPoint;
 
         /// <summary>
-        /// Flag that indicates if user can draw a rectangle
+        /// Indicates what geometry user wants to draw
         /// </summary>
-        private bool _drawRectangle;
-
-        /// <summary>
-        /// Flag that indicate if user can draw a circle
-        /// </summary>
-        private bool _drawCircle;
-
-        /// <summary>
-        /// Flag that indicate if user can draw a line
-        /// </summary>
-        private bool _drawLine;
+        private DrawingGeometry _drawingGeometry = DrawingGeometry.None; 
 
         /// <summary>
         /// ID of current image
@@ -178,10 +193,10 @@ namespace ImageViewer.Behaviors
             var adorner = new GeometryAdorner(AssociatedObject, null)
             {
                 Cursor = Cursors.Hand,
-                BorderBrush = SolidColorBrush,
-                BorderThickness = Thickness,
-                BackgroundOpacity = Opacity,
-                BackgroundColor = Background
+                BorderBrush = BorderColorBrush,
+                BorderThickness = BorderThickness,
+                BackgroundOpacity = BackgroundOpacity,
+                BackgroundColor = BackgroundColor
             };
 
             if (_layer == null) _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
@@ -205,12 +220,15 @@ namespace ImageViewer.Behaviors
             {
                 _endPoint = e.GetPosition(AssociatedObject);
 
-                if (_drawRectangle)
-                    DrawRectangle(_adorners.Last());
-                if (_drawCircle)
-                    DrawCircle(_adorners.Last());
-                if (_drawLine)
-                    DrawLine(_adorners.Last());
+                switch (_drawingGeometry)
+                {
+                    case DrawingGeometry.Rectangle: DrawRectangle(_adorners.Last());
+                        break;
+                    case DrawingGeometry.Circle: DrawCircle(_adorners.Last());
+                        break;
+                    case DrawingGeometry.Line: DrawLine(_adorners.Last());
+                        break;
+                }
             }
         }
 
@@ -307,9 +325,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void OnDrawRectangle()
         {
-            _drawCircle = false;
-            _drawLine = false;
-            _drawRectangle = !_drawRectangle;
+            _drawingGeometry = _drawingGeometry == DrawingGeometry.Rectangle ? DrawingGeometry.None : DrawingGeometry.Rectangle;
         }
 
         /// <summary>
@@ -317,9 +333,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void OnDrawCircle()
         {
-            _drawRectangle = false;
-            _drawLine = false;
-            _drawCircle = !_drawCircle;
+            _drawingGeometry = _drawingGeometry == DrawingGeometry.Circle ? DrawingGeometry.None : DrawingGeometry.Circle;
         }
 
         /// <summary>
@@ -327,9 +341,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void OnDrawLine()
         {
-            _drawRectangle = false;
-            _drawCircle = false;
-            _drawLine = !_drawLine;
+            _drawingGeometry = _drawingGeometry == DrawingGeometry.Line ? DrawingGeometry.None : DrawingGeometry.Line;
         }
 
         /// <summary>
@@ -357,10 +369,10 @@ namespace ImageViewer.Behaviors
                 var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
                 {
                     Cursor = Cursors.Hand,
-                    BorderBrush = SolidColorBrush,
-                    BorderThickness = Thickness,
-                    BackgroundOpacity = Opacity,
-                    BackgroundColor = Background
+                    BorderBrush = BorderColorBrush,
+                    BorderThickness = BorderThickness,
+                    BackgroundOpacity = BackgroundOpacity,
+                    BackgroundColor = BackgroundColor
                 };
 
                 adorner.MouseMove += OnMouseMove;

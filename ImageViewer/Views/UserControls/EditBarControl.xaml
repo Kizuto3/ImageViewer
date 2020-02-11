@@ -1,0 +1,50 @@
+﻿<UserControl x:Class="ImageViewer.Views.UserControls.EditBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
+             xmlns:attachedProperties="clr-namespace:ImageViewer.AttachedProperties"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="200">
+    
+    <Grid Width="0"
+          attachedProperties:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsEditBarVisible}"
+          Style="{StaticResource SlideInOut}">
+        <Grid.RowDefinitions>
+
+            <!-- Draw rectangle button -->
+            <RowDefinition Height="*" MinHeight="100"/>
+
+            <!-- Draw circle button -->
+            <RowDefinition Height="*" MinHeight="100"/>
+
+            <!-- Draw line button -->
+            <RowDefinition Height="*" MinHeight="100"/>
+
+            <!-- Marker button -->
+            <RowDefinition Height="*" MinHeight="100"/>
+
+        </Grid.RowDefinitions>
+
+        <!-- Draw rectangle button -->
+        <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawRectangle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource RectangleDrawingImage}" Height="50"/>
+        </Button>
+
+        <!-- Draw circle button -->
+        <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawCircle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource CircleDrawingImage}" Height="50"/>
+        </Button>
+
+        <!-- Draw line button -->
+        <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawLine, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource LineDrawingImage}" Height="50"/>
+        </Button>
+
+        <!-- Marker button -->
+        <Button Grid.Row="3" Style="{StaticResource Backgroundless}">
+            <Image Source="{StaticResource MarkerDrawingImage}" Height="50"/>
+        </Button>
+    </Grid>
+</UserControl>

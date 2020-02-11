@@ -12,6 +12,7 @@ using ImageViewer.EventAggregators;
 using CommonServiceLocator;
 using Unity;
 using System;
+using System.Windows;
 
 namespace ImageViewer.ViewModels
 {
@@ -25,6 +26,8 @@ namespace ImageViewer.ViewModels
         private const double ScaleOut = 0.9;
 
         private const double RotationAngle = 90;
+
+        private const double ThicknessCoeff = 5;
 
         #region Private Members
 
@@ -82,11 +85,14 @@ namespace ImageViewer.ViewModels
             }
         }
 
+        /// <summary>
+        /// Thickness of the geometries` borders 
+        /// </summary>
         public double LineThickness
         {
             get
             {
-                return 5 / CurrentImage.ScaleY;
+                return ThicknessCoeff / CurrentImage.ScaleY;
             }
         }
 
@@ -186,6 +192,7 @@ namespace ImageViewer.ViewModels
             }
 
             CurrentImage = _db.GetImageModel(CurrentPage.ImageModelID);
+            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
 
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             _ea = container.Resolve<IEventAggregator>();
@@ -251,6 +258,8 @@ namespace ImageViewer.ViewModels
             CurrentImage.ScaleX *= ScaleIn;
             CurrentImage.ScaleY *= ScaleIn;
 
+            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
+
             _db.UpdateImageModel(CurrentImage);
         }
 
@@ -261,6 +270,8 @@ namespace ImageViewer.ViewModels
         {
             CurrentImage.ScaleX *= ScaleOut;
             CurrentImage.ScaleY *= ScaleOut;
+
+            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
 
             _db.UpdateImageModel(CurrentImage);
         }
@@ -296,7 +307,13 @@ namespace ImageViewer.ViewModels
                 return;
             }
             var index = (Images.IndexOf(imageModel) - 1) >= 0 ? Images.IndexOf(imageModel) - 1 : 1;
+
+            CurrentImage.PropertyChanged -= LineThickness_PropertyChanged;
+
             CurrentImage = Images.ElementAt(index >= Images.Count ? 0 : index);
+
+            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
+
             Images.Remove(imageModel);
             _db.RemoveImageModel(imageModel.ID);
         }
@@ -311,6 +328,18 @@ namespace ImageViewer.ViewModels
             _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
 
             _db.UpdatePageModel(CurrentPage);
+
+            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
+        }
+
+        /// <summary>
+        /// Method that rises property changed event when <see cref="LineThickness"/> property changes
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void LineThickness_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            RaisePropertyChanged(nameof(LineThickness));
         }
 
         #endregion

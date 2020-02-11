@@ -41,7 +41,6 @@ namespace ImageViewer.Adorners
         /// </summary>
         /// <param name="adornedElement">Element to draw on</param>
         /// <param name="rect">Rectangle to draw</param>
-        /// 
         public GeometryAdorner(UIElement adornedElement, Rect rect) : base(adornedElement)
         {
             Rect = rect;

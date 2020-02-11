@@ -27,7 +27,7 @@
                     <ControlTemplate TargetType="{x:Type Window}">
                         
                         <!-- Outer border with the dropshadow margin -->
-                        <Border Padding="{Binding WindowPadding, Converter={converters:IntToPaddingConverter}}">
+                        <Border Padding="{Binding WindowPadding, UpdateSourceTrigger=PropertyChanged, Converter={converters:IntToPaddingConverter}}">
                             
                             <!-- Main window outline -->
                             <Grid>
@@ -35,10 +35,10 @@
                                 <!-- Opacity mask for corners on grid-->
                                 <Border x:Name="Container"
                                         Background="{StaticResource BackgroudLightBrush}"
-                                        CornerRadius="{Binding WindowCornerRadius, Converter={converters:IntToCornerRadiusConverter}}"/>
+                                        CornerRadius="{Binding WindowCornerRadius, UpdateSourceTrigger=PropertyChanged, Converter={converters:IntToCornerRadiusConverter}}"/>
 
                                 <!-- Window border and dropshadow -->
-                                <Border CornerRadius="{Binding WindowCornerRadius, Converter={converters:IntToCornerRadiusConverter}}"
+                                <Border CornerRadius="{Binding WindowCornerRadius, UpdateSourceTrigger=PropertyChanged, Converter={converters:IntToCornerRadiusConverter}}"
                                         Background="{StaticResource ForegroundLightBrush}">
                                     <Border.Effect>
                                         <DropShadowEffect ShadowDepth="0" Opacity="0.2"/>

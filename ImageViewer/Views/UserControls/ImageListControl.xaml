@@ -5,9 +5,13 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
+             xmlns:attachedProperties="clr-namespace:ImageViewer.AttachedProperties"
              xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
              mc:Ignorable="d" >
-    <Grid>
+
+    <Grid attachedProperties:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsListVisible}"
+          Style="{StaticResource SlideInOutReversed}">
+        
         <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
             <ListView ItemsSource="{Binding Images}" 
                       SelectedItem="{Binding CurrentImage}"

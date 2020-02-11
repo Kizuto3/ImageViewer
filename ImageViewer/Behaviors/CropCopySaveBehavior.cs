@@ -46,14 +46,29 @@ namespace ImageViewer.Behaviors
 
         #region Commands
 
+        /// <summary>
+        /// Command to save an image
+        /// </summary>
         public ICommand SaveCommand => new DelegateCommand(OnSave);
 
+        /// <summary>
+        /// Command to crop an image
+        /// </summary>
         public ICommand CropCommand => new DelegateCommand(OnCrop);
 
+        /// <summary>
+        /// Command to remove crop from an image
+        /// </summary>
         public ICommand RemoveCropCommand => new DelegateCommand(OnRemoveCrop);
 
+        /// <summary>
+        /// Command to copy image to clipboard
+        /// </summary>
         public ICommand CopyCommand => new DelegateCommand(OnCopy);
 
+        /// <summary>
+        /// Command to select area to crop
+        /// </summary>
         public ICommand SelectAreaCommand => new DelegateCommand(OnSelectArea);
 
         #endregion
@@ -170,7 +185,7 @@ namespace ImageViewer.Behaviors
             if (bmpCopied != null)
             {
                 Clipboard.SetImage(bmpCopied);
-                MessageBox.Show("Sended to clipboard");
+                MessageBox.Show("Sended to clipboard", "Image viewer");
             }
         }
 

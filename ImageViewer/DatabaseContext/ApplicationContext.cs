@@ -77,42 +77,42 @@ namespace ImageViewer.DatabaseContext
             {
                 _SQLiteConnection.Open();
 
-                var createImageModelsTable = "CREATE TABLE \"ImageModels\" (" +
-                                             "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
-	                                         "\"Fullpath\"  TEXT," +
-	                                         "\"ScaleX\"    FLOAT," +
-	                                         "\"ScaleY\"    FLOAT," +
-	                                         "\"Angle\" FLOAT)";
+                var createImageModelsTable = @"CREATE TABLE 'ImageModels' (
+                                                      'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                      'Fullpath' TEXT,
+                                                      'ScaleX' FLOAT,
+                                                      'ScaleY' FLOAT,
+                                                      'Angle' FLOAT)";
 
                 var command = new SQLiteCommand(createImageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createPageModelsTable = "CREATE TABLE \"PageModels\" (" +
-                                            "\"IsListVisible\" BOOLEAN," +
-	                                        "\"IsEditBarVisible\"  BOOLEAN," +
-	                                        "\"ID\" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
-	                                        "\"ImageModelID\"  INTEGER," +
-	                                        "FOREIGN KEY(\"ImageModelID\") REFERENCES \"ImageModels\"(\"ID\"))";
+                var createPageModelsTable = @"CREATE TABLE 'PageModels' (
+                                                    'IsListVisible' BOOLEAN,
+                                                    'IsEditBarVisible' BOOLEAN,
+                                                    'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                    'ImageModelID' INTEGER,
+                                                    FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
 
                 command = new SQLiteCommand(createPageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createWindowModelsTable = "CREATE TABLE \"WindowModels\" (" +
-                                              "\"Left\"  FLOAT," +
-	                                          "\"Top\"   FLOAT," +
-	                                          "\"Width\" FLOAT," +
-	                                          "\"Height\" FLOAT," +
-	                                          "\"State\" INTEGER," +
-	                                          "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE)";
+                var createWindowModelsTable = @"CREATE TABLE 'WindowModels' (
+                                                      'Left' FLOAT,
+                                                      'Top' FLOAT,
+                                                      'Width' FLOAT,
+                                                      'Height' FLOAT,
+                                                      'State' INTEGER,
+                                                      'ID' INTEGER PRIMARY KEY AUTOINCREMENT)";
 
                 command = new SQLiteCommand(createWindowModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createEditModelsTable = "CREATE TABLE \"EditModels\" (" +
-                                            "\"ID\"    INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT UNIQUE," +
-                                            "\"Path\"  TEXT," +
-                                            "\"ImageModelID\"  INTEGER," +
-                                            "FOREIGN KEY(\"ImageModelID\") REFERENCES \"ImageModels\"(\"ID\"))";
+                var createEditModelsTable = @"CREATE TABLE 'EditModels' (
+                                                     'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                     'Path' TEXT,
+                                                     'ImageModelID' INTEGER,
+                                                     FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
 
                 command = new SQLiteCommand(createEditModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
