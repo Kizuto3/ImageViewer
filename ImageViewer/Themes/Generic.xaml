@@ -24,23 +24,24 @@
 
                             <Image.LayoutTransform>
                                 <TransformGroup>
-                                    <ScaleTransform ScaleX="{TemplateBinding ScaleX}" 
-                                                    ScaleY="{TemplateBinding ScaleY}"/>
-                                    
-                                    <RotateTransform Angle="{TemplateBinding RotationAngle}"/>
+                                    <ScaleTransform ScaleX="{Binding Path=ScaleX, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                    ScaleY="{Binding Path=ScaleY, RelativeSource={RelativeSource TemplatedParent}}"/>
+
+                                    <RotateTransform Angle="{Binding Path=RotationAngle, RelativeSource={RelativeSource TemplatedParent}}"/>
                                 </TransformGroup>
                             </Image.LayoutTransform>
 
                             <i:Interaction.Behaviors>
 
                                 <!-- Behavior that allows user to crop, copy and save the image -->
-                                <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
+                                <behaviors:CropCopySaveBehavior BehaviorType="{Binding Path=BehaviorType, RelativeSource={RelativeSource TemplatedParent}}" />
 
                                 <!-- Behavior that allows user to draw shapes on the image -->
-                                <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
+                                <behaviors:DrawingBehavior Shape="{Binding Path=DrawingShape, RelativeSource={RelativeSource TemplatedParent}}"
+                                                           BehaviorType="{Binding Path=BehaviorType, RelativeSource={RelativeSource TemplatedParent}}"
                                                            BorderColorBrush="Blue"
                                                            BackgroundColor="Purple"
-                                                           BorderThickness="5"
+                                                           BorderThickness="{Binding Path=LineThickness, RelativeSource={RelativeSource TemplatedParent}}"
                                                            BackgroundOpacity="0.5"/>
                             </i:Interaction.Behaviors>
 

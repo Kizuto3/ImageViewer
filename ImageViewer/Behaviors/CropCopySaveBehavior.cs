@@ -1,5 +1,4 @@
-﻿using Prism.Commands;
-using System.IO;
+﻿using System.IO;
 using System.Windows;
 using System;
 using System.Windows.Controls;
@@ -10,11 +9,34 @@ using System.Windows.Media;
 using ImageViewer.Adorners;
 using System.Windows.Documents;
 using Microsoft.Win32;
+using ImageViewer.Abstractions;
+using CommonServiceLocator;
+using Prism.Events;
+using Unity;
+using ImageViewer.EventAggregators;
 
 namespace ImageViewer.Behaviors
 {
     class CropCopySaveBehavior : Behavior<Image>
     {
+        #region Properties
+
+        /// <summary>
+        /// Dependency property to set up a shape to be drawn
+        /// </summary>
+        public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(CropCopySaveBehavior), new PropertyMetadata(BehaviorType.None));
+
+        /// <summary>
+        /// Behavior to use
+        /// </summary>
+        public BehaviorType BehaviorType
+        {
+            get => (BehaviorType)GetValue(BehaviorTypeProperty);
+            set => SetValue(BehaviorTypeProperty, value);
+        }
+
+        #endregion
+
         #region Private Members
 
         /// <summary>
@@ -28,11 +50,6 @@ namespace ImageViewer.Behaviors
         private Point _endPoint;
 
         /// <summary>
-        /// Flag that indicates if user can select area to crop
-        /// </summary>
-        private bool _canSelectArea;
-
-        /// <summary>
         /// Adorner that will be added to image adorner layer
         /// </summary>
         private GeometryAdorner _adorner;
@@ -44,34 +61,19 @@ namespace ImageViewer.Behaviors
 
         #endregion
 
-        #region Commands
-
         /// <summary>
-        /// Command to save an image
+        /// Create new instance of <see cref="CropCopySaveBehavior"/> and subscribes to events
         /// </summary>
-        public ICommand SaveCommand => new DelegateCommand(OnSave);
+        public CropCopySaveBehavior()
+        {
+            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
+            var ea = container.Resolve<IEventAggregator>();
 
-        /// <summary>
-        /// Command to crop an image
-        /// </summary>
-        public ICommand CropCommand => new DelegateCommand(OnCrop);
-
-        /// <summary>
-        /// Command to remove crop from an image
-        /// </summary>
-        public ICommand RemoveCropCommand => new DelegateCommand(OnRemoveCrop);
-
-        /// <summary>
-        /// Command to copy image to clipboard
-        /// </summary>
-        public ICommand CopyCommand => new DelegateCommand(OnCopy);
-
-        /// <summary>
-        /// Command to select area to crop
-        /// </summary>
-        public ICommand SelectAreaCommand => new DelegateCommand(OnSelectArea);
-
-        #endregion
+            ea.GetEvent<SaveImageEvent>().Subscribe(OnSave);
+            ea.GetEvent<CropImageEvent>().Subscribe(OnCrop);
+            ea.GetEvent<RemoveCropEvent>().Subscribe(OnRemoveCrop);
+            ea.GetEvent<CopyImageEvent>().Subscribe(OnCopy);
+        }
 
         #region Methods
 
@@ -98,7 +100,9 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (e.LeftButton == MouseButtonState.Pressed && _canSelectArea)
+            if (BehaviorType != BehaviorType.CropCopySave) return;
+
+            if (e.LeftButton == MouseButtonState.Pressed)
             {
                 _endPoint = e.GetPosition(AssociatedObject);
 
@@ -113,39 +117,12 @@ namespace ImageViewer.Behaviors
 
                 var rectangleGeometry = new RectangleGeometry(rect);
 
-                //If adorner layer wasn`t created
-                if (_layer == null)
+                //Set adorner`s Rect object to new rectangle
+                _adorner.Rect = rect;
+                _adorner.Geometry = rectangleGeometry;
 
-                    //Get the image`s adorner layer
-                    _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
-
-                //If adorner was created
-                if (_adorner != null)
-                {
-                    //Set it`s Rect object to new rectangle
-                    _adorner.Rect = rect;
-                    _adorner.Geometry = rectangleGeometry;
-
-                    //And invalidate it`s visual
-                    _adorner.InvalidateVisual();
-                }
-
-                //If adorner was not created
-                else
-                {
-                    //Create a new instance of RectAdorner object
-                    _adorner = new GeometryAdorner(AssociatedObject, rectangleGeometry)
-                    {
-                        Cursor = Cursors.Hand
-                    };
-
-                    //Set it`s mouse event handlers
-                    _adorner.MouseMove += OnMouseMove;
-                    _adorner.MouseDown += OnMouseDown;
-
-                    //And add it to the adorner layer
-                    _layer.Add(_adorner);
-                }
+                //And invalidate it`s visual
+                _adorner.InvalidateVisual();
             }
         }
 
@@ -156,7 +133,33 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (BehaviorType != BehaviorType.CropCopySave) return;
+
             _startPoint = e.GetPosition(AssociatedObject);
+
+            //If adorner layer wasn`t created
+            if (_layer == null)
+            {
+                //Get the image`s adorner layer
+                _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            }
+
+            //If adorner was not created
+            if (_adorner == null)
+            {
+                //Create a new instance of RectAdorner object
+                _adorner = new GeometryAdorner(AssociatedObject, null)
+                {
+                    Cursor = Cursors.Hand
+                };
+
+                //Set it`s mouse event handlers
+                _adorner.MouseMove += OnMouseMove;
+                _adorner.MouseDown += OnMouseDown;
+
+                //And add it to the adorner layer
+                _layer.Add(_adorner);
+            }
         }
 
         /// <summary>
@@ -218,20 +221,6 @@ namespace ImageViewer.Behaviors
         private void OnRemoveCrop()
         {
             AssociatedObject.Clip = null;
-        }
-
-        /// <summary>
-        /// Set flag to indicates if user can select area to crop
-        /// </summary>
-        private void OnSelectArea()
-        {
-            _canSelectArea = !_canSelectArea;
-            AssociatedObject.Cursor = AssociatedObject.Cursor == Cursors.Hand ? Cursors.Arrow : Cursors.Hand;
-            if (_adorner != null)
-            {
-                _layer.Remove(_adorner);
-                _adorner = null;
-            }
         }
 
         /// <summary>

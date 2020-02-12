@@ -7,7 +7,6 @@ using System.Windows.Media;
 using ImageViewer.Adorners;
 using System.Windows.Documents;
 using System.Collections.Generic;
-using Prism.Commands;
 using Unity;
 using Prism.Events;
 using CommonServiceLocator;
@@ -26,22 +25,32 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Dependency property to set up a geometry`s border color
         /// </summary>
-        public DependencyProperty BorderColorBrushProperty = DependencyProperty.Register(nameof(BorderColorBrush), typeof(SolidColorBrush), typeof(DrawingBehavior), new PropertyMetadata(Brushes.Fuchsia));
+        public static DependencyProperty BorderColorBrushProperty = DependencyProperty.Register(nameof(BorderColorBrush), typeof(SolidColorBrush), typeof(DrawingBehavior), new PropertyMetadata(Brushes.Fuchsia));
 
         /// <summary>
         /// Dependency property to set up a thickness of geometry`s border
         /// </summary>
-        public DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
+        public static DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
 
         /// <summary>
         /// Dependency property to set up an opacity of a geometry
         /// </summary>
-        public DependencyProperty BackgroundOpacityProperty = DependencyProperty.Register(nameof(BackgroundOpacity), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
+        public static DependencyProperty BackgroundOpacityProperty = DependencyProperty.Register(nameof(BackgroundOpacity), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
 
         /// <summary>
         /// Dependency property to set up a background color of a geometry
         /// </summary>
-        public DependencyProperty BackgroundColorProperty = DependencyProperty.Register(nameof(BackgroundColor), typeof(Color), typeof(DrawingBehavior), new PropertyMetadata(Colors.Transparent));
+        public static DependencyProperty BackgroundColorProperty = DependencyProperty.Register(nameof(BackgroundColor), typeof(Color), typeof(DrawingBehavior), new PropertyMetadata(Colors.Transparent));
+
+        /// <summary>
+        /// Dependency property to set up a shape to be drawn
+        /// </summary>
+        public static DependencyProperty ShapeProperty = DependencyProperty.Register(nameof(Shape), typeof(Shape), typeof(DrawingBehavior), new PropertyMetadata(Shape.None));
+
+        /// <summary>
+        /// Dependency property to set up a shape to be drawn
+        /// </summary>
+        public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(DrawingBehavior), new PropertyMetadata(BehaviorType.None));
 
         /// <summary>
         /// A geometry`s border color
@@ -79,6 +88,24 @@ namespace ImageViewer.Behaviors
             set => SetValue(BackgroundColorProperty, value);
         }
 
+        /// <summary>
+        /// Shape to be drawn
+        /// </summary>
+        public Shape Shape
+        {
+            get => (Shape)GetValue(ShapeProperty);
+            set => SetValue(ShapeProperty, value);
+        }
+
+        /// <summary>
+        /// Behavior to use
+        /// </summary>
+        public BehaviorType BehaviorType
+        {
+            get => (BehaviorType)GetValue(BehaviorTypeProperty);
+            set => SetValue(BehaviorTypeProperty, value);
+        }
+
         #endregion
 
         #region Private Members
@@ -91,12 +118,7 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// End point of the rectagle to crop
         /// </summary>
-        private Point _endPoint;
-
-        /// <summary>
-        /// Indicates what geometry user wants to draw
-        /// </summary>
-        private DrawingGeometry _drawingGeometry = DrawingGeometry.None; 
+        private Point _endPoint; 
 
         /// <summary>
         /// ID of current image
@@ -118,42 +140,24 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private readonly ApplicationContext _db = new ApplicationContext();
 
-        /// <summary>
-        /// Event Aggregator to subscribe to <see cref="IdSentEvent"/> event
-        /// </summary>
-        private readonly IEventAggregator _ea;
-
         #endregion
 
         /// <summary>
-        /// Constructor to subscribe to <see cref="IdSentEvent"/> event aggregator
+        /// Constructor to subscribe to <see cref="IDSentEvent"/> event aggregator
         /// </summary>
         public DrawingBehavior()
         {
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
-            _ea = container.Resolve<IEventAggregator>();
-            _ea.GetEvent<IdSentEvent>().Subscribe(DrawGeometries);
+            var ea = container.Resolve<IEventAggregator>();
+
+            ea.GetEvent<IDSentEvent>().Subscribe(DrawGeometries);
+            ea.GetEvent<ChangeBorderThicknessEvent>().Subscribe(ChangeBorderThickness);
 
             var page = _db.GetPageModel();
-            _imageModelID = _db.GetImageModel(page.ImageModelID).ID;
+            _imageModelID = page.ImageModelID;
         }
 
         #region Commands
-
-        /// <summary>
-        /// Command to set flags to draw a rectangle or nothing
-        /// </summary>
-        public ICommand DrawRectangleCommand => new DelegateCommand(OnDrawRectangle);
-
-        /// <summary>
-        /// Command to set flags to draw a circle or nothing
-        /// </summary>
-        public ICommand DrawCircleCommand => new DelegateCommand(OnDrawCircle);
-
-        /// <summary>
-        /// Command to set flags to draw a line or nothing
-        /// </summary>
-        public ICommand DrawLineCommand => new DelegateCommand(OnDrawLine);
 
         #endregion
 
@@ -166,7 +170,7 @@ namespace ImageViewer.Behaviors
             AssociatedObject.MouseLeftButtonDown += OnMouseDown;
             AssociatedObject.MouseMove += OnMouseMove;
             AssociatedObject.MouseUp += OnMouseUp;
-
+            
             AssociatedObject.Loaded += AssociatedObject_Loaded;
         }
 
@@ -188,6 +192,8 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseDown(object sender, MouseButtonEventArgs e)
         {
+            if (BehaviorType != BehaviorType.Drawing) return;
+
             _startPoint = e.GetPosition(AssociatedObject);
 
             var adorner = new GeometryAdorner(AssociatedObject, null)
@@ -216,17 +222,19 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
+            if (BehaviorType != BehaviorType.Drawing) return;
+
             if (e.LeftButton == MouseButtonState.Pressed)
             {
                 _endPoint = e.GetPosition(AssociatedObject);
 
-                switch (_drawingGeometry)
+                switch (Shape)
                 {
-                    case DrawingGeometry.Rectangle: DrawRectangle(_adorners.Last());
+                    case Shape.Rectangle: DrawRectangle(_adorners.Last());
                         break;
-                    case DrawingGeometry.Circle: DrawCircle(_adorners.Last());
+                    case Shape.Circle: DrawCircle(_adorners.Last());
                         break;
-                    case DrawingGeometry.Line: DrawLine(_adorners.Last());
+                    case Shape.Line: DrawLine(_adorners.Last());
                         break;
                 }
             }
@@ -239,6 +247,8 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseUp(object sender, MouseButtonEventArgs e)
         {
+            if (BehaviorType != BehaviorType.Drawing) return;
+
             if (_adorners.Last().Geometry == null) return;
 
             var path = _adorners.Last().Geometry.GetFlattenedPathGeometry().ToString();
@@ -321,27 +331,19 @@ namespace ImageViewer.Behaviors
         }
 
         /// <summary>
-        /// Set flag to draw a rectangle or nothing
+        /// Changes geometries border thickness 
         /// </summary>
-        private void OnDrawRectangle()
+        private void ChangeBorderThickness()
         {
-            _drawingGeometry = _drawingGeometry == DrawingGeometry.Rectangle ? DrawingGeometry.None : DrawingGeometry.Rectangle;
-        }
+            if (_layer == null)
+            {
+                _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
+            }
 
-        /// <summary>
-        /// Set flag to draw a circle or nothing
-        /// </summary>
-        private void OnDrawCircle()
-        {
-            _drawingGeometry = _drawingGeometry == DrawingGeometry.Circle ? DrawingGeometry.None : DrawingGeometry.Circle;
-        }
-
-        /// <summary>
-        /// Set flag to draw a line or nothing
-        /// </summary>
-        private void OnDrawLine()
-        {
-            _drawingGeometry = _drawingGeometry == DrawingGeometry.Line ? DrawingGeometry.None : DrawingGeometry.Line;
+            foreach (var adorner in _adorners)
+            {
+                adorner.BorderThickness = BorderThickness;
+            }
         }
 
         /// <summary>

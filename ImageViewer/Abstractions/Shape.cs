@@ -1,6 +1,6 @@
 ﻿namespace ImageViewer.Abstractions
 {
-    public enum DrawingGeometry
+    public enum Shape
     {
         None = 0,
         Rectangle = 1,

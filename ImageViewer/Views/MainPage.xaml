@@ -5,9 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:ImageViewer.Views"
       xmlns:prism="http://prismlibrary.com/"
-      xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
       xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
-      xmlns:behaviors="clr-namespace:ImageViewer.Behaviors"
       xmlns:userControls="clr-namespace:ImageViewer.Views.UserControls"
       xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
       xmlns:customControls="clr-namespace:ImageViewer.Views.CustomControls"
@@ -30,7 +28,7 @@
 
         </Grid.RowDefinitions>
 
-        <!-- Main Container -->
+        <!-- The image and the side bars -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
 
@@ -40,7 +38,7 @@
                 <!-- Left side drop shadow -->
                 <ColumnDefinition Width="Auto"/>
 
-                <!-- Image -->
+                <!-- Image presenter -->
                 <ColumnDefinition Width="*"/>
 
                 <!-- Right side drop shadow -->
@@ -57,42 +55,7 @@
             <!-- Left side drop shadow -->
             <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
 
-            <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-
-                <!-- The image -->
-                <Image RenderTransformOrigin="0.5, 0.5"
-                       VerticalAlignment="Center"
-                       attachedPropetries:SizeObserver.Observe="True"
-                       attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
-                       attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
-                       Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
-
-                    <Image.LayoutTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="{Binding CurrentImage.ScaleX}" ScaleY="{Binding CurrentImage.ScaleY}"/>
-
-                            <RotateTransform Angle="{Binding CurrentImage.Angle}"/>
-                        </TransformGroup>
-                    </Image.LayoutTransform>
-
-                    <i:Interaction.Behaviors>
-
-                        <!-- Behavior that allows user to crop, copy and save the image -->
-                        <behaviors:CropCopySaveBehavior x:Name="CropCopySaveBehavior" />
-
-                        <!-- Behavior that allows user to draw shapes on the image -->
-                        <behaviors:DrawingBehavior x:Name="DrawingBehavior" 
-                                                   BorderColorBrush="Blue"
-                                                   BackgroundColor="Purple"
-                                                   BorderThickness="{Binding LineThickness}"
-                                                   BackgroundOpacity="0.5"/>
-                    </i:Interaction.Behaviors>
-
-                </Image>
-
-            </ScrollViewer>
-            
-            <!--
+            <!-- Image presenter -->
             <customControls:ImagePresenterControl Grid.Column="2"
                                                   x:Name="ImagePresenter"
                                                   ScaleX="{Binding CurrentImage.ScaleX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
@@ -100,18 +63,20 @@
                                                   RotationAngle="{Binding CurrentImage.Angle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                                   ImageSource="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}, Mode=TwoWay}"
                                                   LineThickness="{Binding LineThickness, UpdateSourceTrigger=PropertyChanged}"
+                                                  DrawingShape="{Binding Shape, Mode=TwoWay}"
+                                                  BehaviorType="{Binding Behavior, Mode=TwoWay}"
                                                   attachedPropetries:SizeObserver.Observe="True"
-                                                  attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
-                                                  attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/> -->
+                                                  attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, UpdateSourceTrigger=PropertyChanged}"
+                                                  attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged}"/>
 
             <!-- Right side drop shadow -->
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
 
             <!-- Container with buttons for editing image -->
             <userControls:EditBarControl Grid.Column="4"
-                                         DrawRectangle="{Binding ElementName=DrawingBehavior, Path=DrawRectangleCommand}"
-                                         DrawCircle="{Binding ElementName=DrawingBehavior, Path=DrawCircleCommand}"
-                                         DrawLine="{Binding ElementName=DrawingBehavior, Path=DrawLineCommand}"/>
+                                         DrawRectangle="{Binding DrawRectangleCommand}"
+                                         DrawCircle="{Binding DrawCircleCommand}"
+                                         DrawLine="{Binding DrawLineCommand}"/>
             
         </Grid>
 
@@ -120,11 +85,11 @@
 
         <!-- The bottom bar with buttons -->
         <userControls:BottomBarControl Grid.Row="2" 
-                                       SaveImage="{Binding ElementName=CropCopySaveBehavior, Path=SaveCommand}" 
-                                       CopyImage="{Binding ElementName=CropCopySaveBehavior, Path=CopyCommand}"
-                                       CropImage="{Binding ElementName=CropCopySaveBehavior, Path=CropCommand}"
-                                       RemoveCrop="{Binding ElementName=CropCopySaveBehavior, Path=RemoveCropCommand}"
-                                       SelectArea="{Binding ElementName=CropCopySaveBehavior, Path=SelectAreaCommand}"/>
+                                       SaveImage="{Binding SaveImageCommand}" 
+                                       CopyImage="{Binding CopyImageCommand}"
+                                       CropImage="{Binding CropImageCommand}"
+                                       RemoveCrop="{Binding RemoveCropCommand}"
+                                       SelectArea="{Binding ChangeBehaviorToCCSCommand}"/>
         
     </Grid>
 </Page>

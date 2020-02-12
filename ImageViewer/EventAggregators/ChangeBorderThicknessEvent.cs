@@ -2,7 +2,7 @@
 
 namespace ImageViewer.EventAggregators
 {
-    class IDSentEvent : PubSubEvent<int>
+    class ChangeBorderThicknessEvent : PubSubEvent
     {
     }
 }

@@ -41,7 +41,7 @@
                                 <Border CornerRadius="{Binding WindowCornerRadius, UpdateSourceTrigger=PropertyChanged, Converter={converters:IntToCornerRadiusConverter}}"
                                         Background="{StaticResource ForegroundLightBrush}">
                                     <Border.Effect>
-                                        <DropShadowEffect ShadowDepth="0" Opacity="0.2"/>
+                                        <DropShadowEffect ShadowDepth="0" Opacity="0.2" BlurRadius="10"/>
                                     </Border.Effect>
                                 </Border>
 
@@ -114,6 +114,7 @@
                                     <!-- Drop Shadow-->
                                     <Border Grid.Row="1" Style="{StaticResource HorizontalDropShadow}"/>
 
+                                    <!-- Container -->
                                     <Border Grid.Row="2">
                                         <ContentPresenter Content="{TemplateBinding Content}"/>
                                     </Border>

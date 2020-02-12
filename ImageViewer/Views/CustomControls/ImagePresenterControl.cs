@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using ImageViewer.Abstractions;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
@@ -30,6 +31,17 @@ namespace ImageViewer.Views.CustomControls
         /// Dependency property to set up a line thickness
         /// </summary>
         public static DependencyProperty LineThicknessProperty = DependencyProperty.Register(nameof(LineThickness), typeof(double), typeof(ImagePresenterControl), new PropertyMetadata(1d));
+
+        /// <summary>
+        /// Dependency property to set up a shape to be drawn
+        /// </summary>
+        public static DependencyProperty DrawingShapeProperty = DependencyProperty.Register(nameof(DrawingShape), typeof(Shape), typeof(ImagePresenterControl), new PropertyMetadata(Shape.None));
+
+        /// <summary>
+        /// Dependency property to set up a shape to be drawn
+        /// </summary>
+        public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(ImagePresenterControl), new PropertyMetadata(BehaviorType.None));
+
 
         /// <summary>
         /// An image source
@@ -74,6 +86,24 @@ namespace ImageViewer.Views.CustomControls
         {
             get => (double)GetValue(LineThicknessProperty);
             set => SetValue(LineThicknessProperty, value);
+        }
+
+        /// <summary>
+        /// Shape to be drawn
+        /// </summary>
+        public Shape DrawingShape
+        {
+            get => (Shape)GetValue(DrawingShapeProperty);
+            set => SetValue(DrawingShapeProperty, value);
+        }
+
+        /// <summary>
+        /// Behavior to use
+        /// </summary>
+        public BehaviorType BehaviorType
+        {
+            get => (BehaviorType)GetValue(BehaviorTypeProperty);
+            set => SetValue(BehaviorTypeProperty, value);
         }
 
         static ImagePresenterControl()

@@ -11,8 +11,7 @@ using Prism.Events;
 using ImageViewer.EventAggregators;
 using CommonServiceLocator;
 using Unity;
-using System;
-using System.Windows;
+using ImageViewer.Abstractions;
 
 namespace ImageViewer.ViewModels
 {
@@ -42,12 +41,22 @@ namespace ImageViewer.ViewModels
         private PageModel _currentPage;
 
         /// <summary>
+        /// Behavior to use when user interacts with image
+        /// </summary>
+        private BehaviorType _behaviorType;
+
+        /// <summary>
+        /// Shape to be drawn
+        /// </summary>
+        private Shape _shape;
+
+        /// <summary>
         /// Database context to manage database
         /// </summary>
         private readonly ApplicationContext _db;
 
         /// <summary>
-        /// Event aggregator to publish <see cref="IdSentEvent"/> event
+        /// Event aggregator to publish <see cref="IDSentEvent"/> event
         /// </summary>
         private readonly IEventAggregator _ea;
 
@@ -82,6 +91,36 @@ namespace ImageViewer.ViewModels
             set
             {
                 SetProperty(ref _currentPage, value);
+            }
+        }
+
+        /// <summary>
+        /// Behavior to use
+        /// </summary>
+        public BehaviorType Behavior
+        {
+            get
+            {
+                return _behaviorType;
+            }
+            set
+            {
+                SetProperty(ref _behaviorType, value);
+            }
+        }
+
+        /// <summary>
+        /// Shape to be drawn
+        /// </summary>
+        public Shape Shape
+        {
+            get
+            {
+                return _shape;
+            }
+            set
+            {
+                SetProperty(ref _shape, value);
             }
         }
 
@@ -150,6 +189,46 @@ namespace ImageViewer.ViewModels
         /// </summary>
         public DelegateCommand SelectionChangedCommand { get; }
 
+        /// <summary>
+        /// Command to set flags to draw a rectangle or nothing
+        /// </summary>
+        public DelegateCommand DrawRectangleCommand { get; }
+
+        /// <summary>
+        /// Command to set flags to draw a circle or nothing
+        /// </summary>
+        public DelegateCommand DrawCircleCommand { get; }
+
+        /// <summary>
+        /// Command to set flags to draw a line or nothing
+        /// </summary>
+        public DelegateCommand DrawLineCommand { get; }
+
+        /// <summary>
+        /// Command to change behavior type to CopyCropSave 
+        /// </summary>
+        public DelegateCommand ChangeBehaviorToCCSCommand { get; }
+
+        /// <summary>
+        /// Command to save an image
+        /// </summary>
+        public DelegateCommand SaveImageCommand { get; }
+
+        /// <summary>
+        /// Command to crop an image
+        /// </summary>
+        public DelegateCommand CropImageCommand { get; }
+
+        /// <summary>
+        /// Command to remove crop from and image 
+        /// </summary>
+        public DelegateCommand RemoveCropCommand { get; }
+
+        /// <summary>
+        /// Command to copy an image to clipboard
+        /// </summary>
+        public DelegateCommand CopyImageCommand { get; }
+
         #endregion
 
         #region Constructors
@@ -168,6 +247,14 @@ namespace ImageViewer.ViewModels
             RotateLeftCommand = new DelegateCommand(RotateLeft);
             RotateRightCommand = new DelegateCommand(RotateRight);
             SelectionChangedCommand = new DelegateCommand(SelectionChanged);
+            DrawRectangleCommand = new DelegateCommand(DrawRectangle);
+            DrawCircleCommand = new DelegateCommand(DrawCircle);
+            DrawLineCommand = new DelegateCommand(DrawLine);
+            ChangeBehaviorToCCSCommand = new DelegateCommand(ChangeBehaviorToCCS);
+            SaveImageCommand = new DelegateCommand(SaveImage);
+            CropImageCommand = new DelegateCommand(CropImage);
+            CopyImageCommand = new DelegateCommand(CopyImage);
+            RemoveCropCommand = new DelegateCommand(RemoveCrop);
 
             Images = new ObservableCollection<ImageModel>();
 
@@ -258,7 +345,7 @@ namespace ImageViewer.ViewModels
             CurrentImage.ScaleX *= ScaleIn;
             CurrentImage.ScaleY *= ScaleIn;
 
-            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
+            _ea.GetEvent<ChangeBorderThicknessEvent>().Publish();
 
             _db.UpdateImageModel(CurrentImage);
         }
@@ -271,7 +358,7 @@ namespace ImageViewer.ViewModels
             CurrentImage.ScaleX *= ScaleOut;
             CurrentImage.ScaleY *= ScaleOut;
 
-            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
+            _ea.GetEvent<ChangeBorderThicknessEvent>().Publish();
 
             _db.UpdateImageModel(CurrentImage);
         }
@@ -325,11 +412,78 @@ namespace ImageViewer.ViewModels
         {
             CurrentPage.ImageModelID = CurrentImage != null ? CurrentImage.ID : CurrentPage.ImageModelID - 1;
 
-            _ea.GetEvent<IdSentEvent>().Publish(CurrentPage.ImageModelID);
+            _ea.GetEvent<IDSentEvent>().Publish(CurrentPage.ImageModelID);
 
             _db.UpdatePageModel(CurrentPage);
 
             CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
+        }
+
+        /// <summary>
+        /// Set flag to draw a rectangle or nothing
+        /// </summary>
+        private void DrawRectangle()
+        {
+            Behavior = BehaviorType.Drawing;
+            Shape = Shape == Shape.Rectangle ? Shape.None : Shape.Rectangle;
+        }
+
+        /// <summary>
+        /// Set flag to draw a circle or nothing
+        /// </summary>
+        private void DrawCircle()
+        {
+            Behavior = BehaviorType.Drawing;
+            Shape = Shape == Shape.Circle ? Shape.None : Shape.Circle;
+        }
+
+        /// <summary>
+        /// Set flag to draw a line or nothing
+        /// </summary>
+        private void DrawLine()
+        {
+            Behavior = BehaviorType.Drawing;
+            Shape = Shape == Shape.Line ? Shape.None : Shape.Line;
+        }
+
+        /// <summary>
+        /// Set flag to draw a line or nothing
+        /// </summary>
+        private void ChangeBehaviorToCCS()
+        {
+            Behavior = Behavior == BehaviorType.CropCopySave? BehaviorType.None : BehaviorType.CropCopySave;
+        }
+
+        /// <summary>
+        /// Publish event to save an image to clipboard using <see cref="EventAggregator"/>
+        /// </summary>
+        private void SaveImage()
+        {
+            _ea.GetEvent<SaveImageEvent>().Publish();
+        }
+
+        /// <summary>
+        /// Publish event to crop an image to clipboard using <see cref="EventAggregator"/>
+        /// </summary>
+        private void CropImage()
+        {
+            _ea.GetEvent<CropImageEvent>().Publish();
+        }
+
+        /// <summary>
+        /// Publish event to remove crop from an image to clipboard using <see cref="EventAggregator"/>
+        /// </summary>
+        private void RemoveCrop()
+        {
+            _ea.GetEvent<RemoveCropEvent>().Publish();
+        }
+
+        /// <summary>
+        /// Publish event to copy an image to clipboard using <see cref="EventAggregator"/>
+        /// </summary>
+        private void CopyImage()
+        {
+            _ea.GetEvent<CopyImageEvent>().Publish();
         }
 
         /// <summary>
