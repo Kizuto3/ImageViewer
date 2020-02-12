@@ -19,6 +19,14 @@
                          DecelerationRatio="0.9"/>
     </Storyboard>
 
+    <Storyboard x:Key="BackgroundToTransparent">
+        <ColorAnimation To="Transparent" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
+    </Storyboard>
+
+    <Storyboard x:Key="BackgroundToLight">
+        <ColorAnimation To="{StaticResource BackgroudLight}" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
+    </Storyboard>
+
     <!-- Style to apply slide in and slide out animations to control-->
     <Style x:Key="SlideInOut">
         <Style.Triggers>

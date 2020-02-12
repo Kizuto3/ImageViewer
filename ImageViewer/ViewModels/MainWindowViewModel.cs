@@ -112,6 +112,7 @@ namespace ImageViewer.ViewModels
         public void SaveChanges()
         {
             _db.UpdateWindowModel(CurrentWindow);
+            _db.RemoveObsoleteEditModels();
         }
 
         #endregion

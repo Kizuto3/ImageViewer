@@ -364,9 +364,7 @@ namespace ImageViewer.Behaviors
 
             _imageModelID = imageModelID;
 
-            var shapes = _db.GetEditModels(imageModelID);
-
-            foreach (var shape in shapes)
+            foreach (var shape in _db.GetEditModels(imageModelID).Result)
             {
                 var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
                 {

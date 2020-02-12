@@ -207,7 +207,7 @@ namespace ImageViewer.DatabaseContext
         /// Get all <see cref="EditModel"/> from database
         /// </summary>
         /// <returns></returns>
-        public List<EditModel> GetEditModels(int imageModelID)
+        public async Task<List<EditModel>> GetEditModels(int imageModelID)
         {
             OpenConnection();
 
@@ -217,7 +217,9 @@ namespace ImageViewer.DatabaseContext
 
             using (_SQLiteConnection)
             {
-                editModels = _SQLiteConnection.Query<EditModel>(query).AsList();
+                var result = await _SQLiteConnection.QueryAsync<EditModel>(query);
+
+                editModels = result.AsList();
             }
 
             return editModels;
@@ -235,8 +237,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "INSERT INTO [ImageModels] ([Fullpath], [ScaleX], [ScaleY], [Angle])" + 
-                                " VALUES (@Fullpath, @ScaleX, @ScaleY, @Angle)";
+            var query = "INSERT INTO [ImageModels] ([Fullpath], [ScaleX], [ScaleY], [Angle]) VALUES (@Fullpath, @ScaleX, @ScaleY, @Angle)";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -285,8 +286,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "INSERT INTO [WindowModels] ([Left], [Top], [Width], [Height], [State])" +
-                                " VALUES (@Left, @Top, @Width, @Height, @State)";
+            var query = "INSERT INTO [WindowModels] ([Left], [Top], [Width], [Height], [State]) VALUES (@Left, @Top, @Width, @Height, @State)";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -343,8 +343,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "INSERT INTO [PageModels] ([ImageModelID], [IsListVisible], [IsEditBarVisible])" +
-                                " VALUES (@ImageModelID, @IsListVisible, @IsEditBarVisible)";
+            var query = "INSERT INTO [PageModels] ([ImageModelID], [IsListVisible], [IsEditBarVisible]) VALUES (@ImageModelID, @IsListVisible, @IsEditBarVisible)";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -385,8 +384,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "INSERT INTO [EditModels] ([ImageModelID], [Path])" +
-                                " VALUES (@ImageModelID, @Path)";
+            var query = "INSERT INTO [EditModels] ([ImageModelID], [Path]) VALUES (@ImageModelID, @Path)";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -423,9 +421,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "UPDATE [imageModels] " +
-                        "SET [ScaleX] = @ScaleX, [ScaleY] = @ScaleY, [Angle] = @Angle " +
-                        "WHERE [ID] = @ID";
+            var query = "UPDATE [imageModels] SET [ScaleX] = @ScaleX, [ScaleY] = @ScaleY, [Angle] = @Angle WHERE [ID] = @ID";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -474,9 +470,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "UPDATE [PageModels] " +
-                        "SET [IsListVisible] = @IsListVisible, [IsEditBarVisible] = @IsEditBarVisible, [ImageModelID] = @ImageModelID " +
-                        "WHERE [ID] = @ID";
+            var query = "UPDATE [PageModels] SET [IsListVisible] = @IsListVisible, [IsEditBarVisible] = @IsEditBarVisible, [ImageModelID] = @ImageModelID WHERE [ID] = @ID";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -525,9 +519,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "UPDATE [WindowModels] " +
-                        "SET [Left] = @Left, [Top] = @Top, [Width] = @Width, [Height] = @Height, [State] = @State " +
-                        "WHERE [ID] = @ID";
+            var query = "UPDATE [WindowModels] SET [Left] = @Left, [Top] = @Top, [Width] = @Width, [Height] = @Height, [State] = @State WHERE [ID] = @ID";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -596,8 +588,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "DELETE FROM [ImageModels] " +
-                        "WHERE [ID] = @ID";
+            var query = "DELETE FROM [ImageModels] WHERE [ID] = @ID";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -608,6 +599,23 @@ namespace ImageViewer.DatabaseContext
                 };
                 command.Parameters.Add(parameter);
 
+                await command.ExecuteNonQueryAsync();
+            }
+
+            CloseConnection();
+        }
+
+        /// <summary>
+        /// Remove <see cref="ImageModel"/> from database by ID
+        /// </summary>
+        /// <param name="imageModelID"></param>
+        public async void RemoveObsoleteEditModels()
+        {
+            OpenConnection();
+
+            var query = "DELETE FROM [EditModels] WHERE [ImageModelID] NOT IN (SELECT [ID] FROM [ImageModels])";
+            using (var command = new SQLiteCommand(query, _SQLiteConnection))
+            {
                 await command.ExecuteNonQueryAsync();
             }
 
