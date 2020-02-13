@@ -48,7 +48,7 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Shape to be drawn
         /// </summary>
-        private Shape _shape;
+        private ShapeType _shape;
 
         /// <summary>
         /// Database context to manage database
@@ -112,7 +112,7 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Shape to be drawn
         /// </summary>
-        public Shape Shape
+        public ShapeType Shape
         {
             get
             {
@@ -205,6 +205,11 @@ namespace ImageViewer.ViewModels
         public DelegateCommand DrawLineCommand { get; }
 
         /// <summary>
+        /// Command to set flags to draw a polyline or nothing
+        /// </summary>
+        public DelegateCommand DrawPolylineCommand { get; }
+
+        /// <summary>
         /// Command to change behavior type to CopyCropSave 
         /// </summary>
         public DelegateCommand ChangeBehaviorToCCSCommand { get; }
@@ -250,6 +255,7 @@ namespace ImageViewer.ViewModels
             DrawRectangleCommand = new DelegateCommand(DrawRectangle);
             DrawCircleCommand = new DelegateCommand(DrawCircle);
             DrawLineCommand = new DelegateCommand(DrawLine);
+            DrawPolylineCommand = new DelegateCommand(DrawPolyline);
             ChangeBehaviorToCCSCommand = new DelegateCommand(ChangeBehaviorToCCS);
             SaveImageCommand = new DelegateCommand(SaveImage);
             CropImageCommand = new DelegateCommand(CropImage);
@@ -270,7 +276,7 @@ namespace ImageViewer.ViewModels
 
             if(page == null)
             {
-                CurrentPage = new PageModel(false, false, 0);
+                CurrentPage = new PageModel(1, false, false, 0);
                 _db.InsertPageModel(CurrentPage);
             }
             else
@@ -410,13 +416,18 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void SelectionChanged()
         {
-            CurrentPage.ImageModelID = CurrentImage != null ? CurrentImage.ID : CurrentPage.ImageModelID - 1;
+            if (CurrentImage != null)
+            {
+                CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
+
+                RaisePropertyChanged(nameof(LineThickness));
+
+                CurrentPage.ImageModelID = CurrentImage.ID;
+            }
 
             _ea.GetEvent<IDSentEvent>().Publish(CurrentPage.ImageModelID);
 
             _db.UpdatePageModel(CurrentPage);
-
-            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
         }
 
         /// <summary>
@@ -425,7 +436,7 @@ namespace ImageViewer.ViewModels
         private void DrawRectangle()
         {
             Behavior = BehaviorType.Drawing;
-            Shape = Shape == Shape.Rectangle ? Shape.None : Shape.Rectangle;
+            Shape = Shape == ShapeType.Rectangle ? ShapeType.None : ShapeType.Rectangle;
         }
 
         /// <summary>
@@ -434,7 +445,7 @@ namespace ImageViewer.ViewModels
         private void DrawCircle()
         {
             Behavior = BehaviorType.Drawing;
-            Shape = Shape == Shape.Circle ? Shape.None : Shape.Circle;
+            Shape = Shape == ShapeType.Ellipse ? ShapeType.None : ShapeType.Ellipse;
         }
 
         /// <summary>
@@ -443,11 +454,20 @@ namespace ImageViewer.ViewModels
         private void DrawLine()
         {
             Behavior = BehaviorType.Drawing;
-            Shape = Shape == Shape.Line ? Shape.None : Shape.Line;
+            Shape = Shape == ShapeType.Line ? ShapeType.None : ShapeType.Line;
         }
 
         /// <summary>
-        /// Set flag to draw a line or nothing
+        /// Set flag to draw a polyline or nothing
+        /// </summary>
+        private void DrawPolyline()
+        {
+            Behavior = BehaviorType.Drawing;
+            Shape = Shape == ShapeType.Polyline ? ShapeType.None : ShapeType.Polyline;
+        }
+
+        /// <summary>
+        /// Set behavior to CopyCropSave or nothing
         /// </summary>
         private void ChangeBehaviorToCCS()
         {

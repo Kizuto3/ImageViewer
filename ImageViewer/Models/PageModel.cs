@@ -94,8 +94,9 @@ namespace ImageViewer.Models
         /// </summary>
         /// <param name="isListVisible"></param>
         /// <param name="isEditBarVisible"></param>
-        public PageModel(bool isListVisible, bool isEditBarVisible, int imageModelID)
+        public PageModel(int id, bool isListVisible, bool isEditBarVisible, int imageModelID)
         {
+            ID = id;
             _isListVisible = isListVisible;
             _isEditBarVisible = isEditBarVisible;
             _imageModelID = imageModelID;

@@ -134,8 +134,9 @@ namespace ImageViewer.Models
         /// <param name="state">The window`s state (normal, minimized, maximized)</param>
         /// <param name="isListVisible">Flag that defines if image list is visible to user or not</param>
         /// <param name="isEditBarVisible">Flag that defines if edit bar is visible to user or not</param>
-        public WindowModel(double left, double top, double width, double height, int state)
+        public WindowModel(int id, double left, double top, double width, double height, int state)
         {
+            ID = id;
             _left = left;
             _top = top;
             _width = width;

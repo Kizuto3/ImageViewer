@@ -76,7 +76,8 @@
             <userControls:EditBarControl Grid.Column="4"
                                          DrawRectangle="{Binding DrawRectangleCommand}"
                                          DrawCircle="{Binding DrawCircleCommand}"
-                                         DrawLine="{Binding DrawLineCommand}"/>
+                                         DrawLine="{Binding DrawLineCommand}"
+                                         DrawPolyline="{Binding DrawPolylineCommand}"/>
             
         </Grid>
 

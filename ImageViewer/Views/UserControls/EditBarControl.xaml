@@ -43,7 +43,7 @@
         </Button>
 
         <!-- Marker button -->
-        <Button Grid.Row="3" Style="{StaticResource Backgroundless}">
+        <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawPolyline, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"> 
             <Image Source="{StaticResource MarkerDrawingImage}" Height="50"/>
         </Button>
     </Grid>

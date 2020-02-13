@@ -93,7 +93,7 @@ namespace ImageViewer.ViewModels
 
             if (window == null)
             {
-                CurrentWindow = new WindowModel(200, 200, 1200, 900, 0);
+                CurrentWindow = new WindowModel(1, 400, 100, 1000, 700, 0);
                 _db.InsertWindowModel(CurrentWindow);
             }
             else

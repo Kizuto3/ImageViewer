@@ -45,7 +45,7 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Dependency property to set up a shape to be drawn
         /// </summary>
-        public static DependencyProperty ShapeProperty = DependencyProperty.Register(nameof(Shape), typeof(Shape), typeof(DrawingBehavior), new PropertyMetadata(Shape.None));
+        public static DependencyProperty ShapeProperty = DependencyProperty.Register(nameof(Shape), typeof(ShapeType), typeof(DrawingBehavior), new PropertyMetadata(ShapeType.None));
 
         /// <summary>
         /// Dependency property to set up a shape to be drawn
@@ -91,9 +91,9 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Shape to be drawn
         /// </summary>
-        public Shape Shape
+        public ShapeType Shape
         {
-            get => (Shape)GetValue(ShapeProperty);
+            get => (ShapeType)GetValue(ShapeProperty);
             set => SetValue(ShapeProperty, value);
         }
 
@@ -128,7 +128,7 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Adorners that will be added to image adorner layer
         /// </summary>
-        private readonly List<GeometryAdorner> _adorners = new List<GeometryAdorner>();
+        private readonly List<GeometryAdorner> _adorners;
 
         /// <summary>
         /// Image adorner layer
@@ -138,15 +138,18 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Data context to manage database
         /// </summary>
-        private readonly ApplicationContext _db = new ApplicationContext();
+        private readonly ApplicationContext _db;
 
         #endregion
 
         /// <summary>
-        /// Constructor to subscribe to <see cref="IDSentEvent"/> event aggregator
+        /// Constructor to subscribe to <see cref="IDSentEvent"/> and <see cref="ChangeBorderThicknessEvent"/> event aggregators
         /// </summary>
         public DrawingBehavior()
         {
+            _adorners = new List<GeometryAdorner>();
+            _db = new ApplicationContext();
+
             var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
             var ea = container.Resolve<IEventAggregator>();
 
@@ -156,10 +159,6 @@ namespace ImageViewer.Behaviors
             var page = _db.GetPageModel();
             _imageModelID = page.ImageModelID;
         }
-
-        #region Commands
-
-        #endregion
 
         #region Methods
 
@@ -186,7 +185,7 @@ namespace ImageViewer.Behaviors
         }
 
         /// <summary>
-        /// Set start points of the rectangle to crop
+        /// Initialize new adorner and get adorner layer of existing image
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -216,7 +215,7 @@ namespace ImageViewer.Behaviors
         }
 
         /// <summary>
-        /// Draw rectangle above image to crop
+        /// Draw geometry above image
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -230,11 +229,13 @@ namespace ImageViewer.Behaviors
 
                 switch (Shape)
                 {
-                    case Shape.Rectangle: DrawRectangle(_adorners.Last());
+                    case ShapeType.Rectangle: DrawRectangle(_adorners.Last());
                         break;
-                    case Shape.Circle: DrawCircle(_adorners.Last());
+                    case ShapeType.Ellipse: DrawEllipse(_adorners.Last());
                         break;
-                    case Shape.Line: DrawLine(_adorners.Last());
+                    case ShapeType.Line: DrawLine(_adorners.Last());
+                        break;
+                    case ShapeType.Polyline: DrawPolyline(_adorners.Last());
                         break;
                 }
             }
@@ -252,7 +253,11 @@ namespace ImageViewer.Behaviors
             if (_adorners.Last().Geometry == null) return;
 
             var path = _adorners.Last().Geometry.GetFlattenedPathGeometry().ToString();
-            _db.InsertEditModel(new EditModel(_imageModelID, path));
+            var bgColor = _adorners.Last().BackgroundColor.ToString();
+            var bgOpacity = _adorners.Last().BackgroundOpacity;
+            var borderBrush = _adorners.Last().BorderBrush.ToString();
+
+            _db.InsertEditModel(new EditModel(_imageModelID, path, bgColor, bgOpacity, borderBrush));
         }
 
         /// <summary>
@@ -293,7 +298,7 @@ namespace ImageViewer.Behaviors
         /// Draw a circle
         /// </summary>
         /// <param name="adorner"></param>
-        private void DrawCircle(GeometryAdorner adorner)
+        private void DrawEllipse(GeometryAdorner adorner)
         {
             //Create a new instance of Ellipse geometry
             var ellipseGeometry = new EllipseGeometry
@@ -327,6 +332,35 @@ namespace ImageViewer.Behaviors
             adorner.Geometry = lineGeometry;
 
             //And invalidate adorner`s visual
+            adorner.InvalidateVisual();
+        }
+
+        /// <summary>
+        /// Draw a polyline
+        /// </summary>
+        /// <param name="adorner"></param>
+        private void DrawPolyline(GeometryAdorner adorner)
+        {
+            if (adorner.Geometry == null)
+            {
+                adorner.Geometry = new PathGeometry();
+                adorner.BackgroundColor = Colors.Transparent;
+            }
+
+            var pathGeometry = adorner.Geometry as PathGeometry;
+
+            if (pathGeometry.Figures.Count == 0)
+            {
+                var pathFigure = new PathFigure
+                {
+                    StartPoint = _startPoint
+                };
+
+                pathGeometry.Figures.Add(pathFigure);
+            }
+
+            pathGeometry.Figures.Last().Segments.Add(new LineSegment(_endPoint, true));
+
             adorner.InvalidateVisual();
         }
 
@@ -366,13 +400,16 @@ namespace ImageViewer.Behaviors
 
             foreach (var shape in _db.GetEditModels(imageModelID).Result)
             {
+                var borderColor = (Color)ColorConverter.ConvertFromString(shape.BorderBrush);
+                var backgroundColor = (Color)ColorConverter.ConvertFromString(shape.BackgroundColor);
+
                 var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
                 {
                     Cursor = Cursors.Hand,
-                    BorderBrush = BorderColorBrush,
+                    BorderBrush = new SolidColorBrush(borderColor),
                     BorderThickness = BorderThickness,
-                    BackgroundOpacity = BackgroundOpacity,
-                    BackgroundColor = BackgroundColor
+                    BackgroundOpacity = shape.BackgroundOpacity,
+                    BackgroundColor = backgroundColor
                 };
 
                 adorner.MouseMove += OnMouseMove;

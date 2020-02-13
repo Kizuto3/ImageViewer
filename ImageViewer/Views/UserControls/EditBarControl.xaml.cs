@@ -25,6 +25,11 @@ namespace ImageViewer.Views.UserControls
         public DependencyProperty DrawLineProperty = DependencyProperty.Register(nameof(DrawLine), typeof(ICommand), typeof(EditBarControl), new PropertyMetadata(null));
 
         /// <summary>
+        /// Dependency property to set up command to draw a polyline
+        /// </summary>
+        public DependencyProperty DrawPolylineProperty = DependencyProperty.Register(nameof(DrawPolyline), typeof(ICommand), typeof(EditBarControl), new PropertyMetadata(null));
+
+        /// <summary>
         /// Command to draw a rectangle
         /// </summary>
         public ICommand DrawRectangle
@@ -49,6 +54,15 @@ namespace ImageViewer.Views.UserControls
         {
             get => (ICommand)GetValue(DrawLineProperty);
             set => SetValue(DrawLineProperty, value);
+        }
+
+        /// <summary>
+        /// Command to draw a polyline
+        /// </summary>
+        public ICommand DrawPolyline
+        {
+            get => (ICommand)GetValue(DrawPolylineProperty);
+            set => SetValue(DrawPolylineProperty, value);
         }
 
         public EditBarControl()

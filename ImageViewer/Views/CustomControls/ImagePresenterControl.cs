@@ -35,7 +35,7 @@ namespace ImageViewer.Views.CustomControls
         /// <summary>
         /// Dependency property to set up a shape to be drawn
         /// </summary>
-        public static DependencyProperty DrawingShapeProperty = DependencyProperty.Register(nameof(DrawingShape), typeof(Shape), typeof(ImagePresenterControl), new PropertyMetadata(Shape.None));
+        public static DependencyProperty DrawingShapeProperty = DependencyProperty.Register(nameof(DrawingShape), typeof(ShapeType), typeof(ImagePresenterControl), new PropertyMetadata(ShapeType.None));
 
         /// <summary>
         /// Dependency property to set up a shape to be drawn
@@ -91,9 +91,9 @@ namespace ImageViewer.Views.CustomControls
         /// <summary>
         /// Shape to be drawn
         /// </summary>
-        public Shape DrawingShape
+        public ShapeType DrawingShape
         {
-            get => (Shape)GetValue(DrawingShapeProperty);
+            get => (ShapeType)GetValue(DrawingShapeProperty);
             set => SetValue(DrawingShapeProperty, value);
         }
 

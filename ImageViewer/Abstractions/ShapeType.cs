@@ -1,10 +1,11 @@
 ﻿namespace ImageViewer.Abstractions
 {
-    public enum Shape
+    public enum ShapeType
     {
         None = 0,
         Rectangle = 1,
-        Circle = 2,
-        Line = 3
+        Ellipse = 2,
+        Line = 3,
+        Polyline = 4
     }
 }

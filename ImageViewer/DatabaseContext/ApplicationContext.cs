@@ -75,44 +75,22 @@ namespace ImageViewer.DatabaseContext
             OpenConnection();
             using (_SQLiteConnection)
             {
-                _SQLiteConnection.Open();
-
-                var createImageModelsTable = @"CREATE TABLE 'ImageModels' (
-                                                      'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                      'Fullpath' TEXT,
-                                                      'ScaleX' FLOAT,
-                                                      'ScaleY' FLOAT,
-                                                      'Angle' FLOAT)";
+                var createImageModelsTable = @"CREATE TABLE 'ImageModels' ('ID' INTEGER PRIMARY KEY AUTOINCREMENT, 'Fullpath' TEXT, 'ScaleX' FLOAT, 'ScaleY' FLOAT, 'Angle' FLOAT)";
 
                 var command = new SQLiteCommand(createImageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createPageModelsTable = @"CREATE TABLE 'PageModels' (
-                                                    'IsListVisible' BOOLEAN,
-                                                    'IsEditBarVisible' BOOLEAN,
-                                                    'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                    'ImageModelID' INTEGER,
-                                                    FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
+                var createPageModelsTable = @"CREATE TABLE 'PageModels' ('IsListVisible' BOOLEAN, 'IsEditBarVisible' BOOLEAN, 'ID' INTEGER PRIMARY KEY AUTOINCREMENT, 'ImageModelID' INTEGER, FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
 
                 command = new SQLiteCommand(createPageModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createWindowModelsTable = @"CREATE TABLE 'WindowModels' (
-                                                      'Left' FLOAT,
-                                                      'Top' FLOAT,
-                                                      'Width' FLOAT,
-                                                      'Height' FLOAT,
-                                                      'State' INTEGER,
-                                                      'ID' INTEGER PRIMARY KEY AUTOINCREMENT)";
+                var createWindowModelsTable = @"CREATE TABLE 'WindowModels' ('Left' FLOAT, 'Top' FLOAT, 'Width' FLOAT, 'Height' FLOAT, 'State' INTEGER, 'ID' INTEGER PRIMARY KEY AUTOINCREMENT)";
 
                 command = new SQLiteCommand(createWindowModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
 
-                var createEditModelsTable = @"CREATE TABLE 'EditModels' (
-                                                     'ID' INTEGER PRIMARY KEY AUTOINCREMENT,
-                                                     'Path' TEXT,
-                                                     'ImageModelID' INTEGER,
-                                                     FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
+                var createEditModelsTable = @"CREATE TABLE 'EditModels' ('ID' INTEGER PRIMARY KEY AUTOINCREMENT,'Path' TEXT,'ImageModelID' INTEGER,'BackgroundColor' VARCHAR(10),'BackgroundOpacity' FLOAT,'BorderBrush' VARCHAR(10), FOREIGN KEY('ImageModelID') REFERENCES 'ImageModels'('ID'))";
 
                 command = new SQLiteCommand(createEditModelsTable, _SQLiteConnection);
                 command.ExecuteNonQuery();
@@ -292,7 +270,7 @@ namespace ImageViewer.DatabaseContext
                 var parameter = new SQLiteParameter
                 {
                     ParameterName = "@Left",
-                    Value = windowModel.ID,
+                    Value = windowModel.Left,
                     DbType = DbType.Double
                 };
                 command.Parameters.Add(parameter);
@@ -384,7 +362,7 @@ namespace ImageViewer.DatabaseContext
         {
             OpenConnection();
 
-            var query = "INSERT INTO [EditModels] ([ImageModelID], [Path]) VALUES (@ImageModelID, @Path)";
+            var query = "INSERT INTO [EditModels] ([ImageModelID], [Path], [BackgroundColor], [BackgroundOpacity], [BorderBrush]) VALUES (@ImageModelID, @Path, @BackgroundColor, @BackgroundOpacity, @BorderBrush)";
             using (var command = new SQLiteCommand(query, _SQLiteConnection))
             {
                 var parameter = new SQLiteParameter
@@ -399,6 +377,30 @@ namespace ImageViewer.DatabaseContext
                 {
                     ParameterName = "@Path",
                     Value = editModel.Path,
+                    DbType = DbType.String
+                };
+                command.Parameters.Add(parameter);
+
+                parameter = new SQLiteParameter
+                {
+                    ParameterName = "@BackgroundColor",
+                    Value = editModel.BackgroundColor,
+                    DbType = DbType.String
+                };
+                command.Parameters.Add(parameter);
+
+                parameter = new SQLiteParameter
+                {
+                    ParameterName = "@BackgroundOpacity",
+                    Value = editModel.BackgroundOpacity,
+                    DbType = DbType.Double
+                };
+                command.Parameters.Add(parameter);
+
+                parameter = new SQLiteParameter
+                {
+                    ParameterName = "@BorderBrush",
+                    Value = editModel.BorderBrush,
                     DbType = DbType.String
                 };
                 command.Parameters.Add(parameter);

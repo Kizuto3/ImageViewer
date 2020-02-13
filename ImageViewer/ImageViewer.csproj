@@ -149,7 +149,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Abstractions\BehaviorType.cs" />
-    <Compile Include="Abstractions\Shape.cs" />
+    <Compile Include="Abstractions\ShapeType.cs" />
     <Compile Include="Adorners\GeometryAdorner.cs" />
     <Compile Include="AttachedProperties\SizeObserver.cs" />
     <Compile Include="Abstractions\ApplicationPage.cs" />

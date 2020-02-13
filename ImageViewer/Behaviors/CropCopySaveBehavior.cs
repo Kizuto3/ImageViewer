@@ -62,7 +62,7 @@ namespace ImageViewer.Behaviors
         #endregion
 
         /// <summary>
-        /// Create new instance of <see cref="CropCopySaveBehavior"/> and subscribes to events
+        /// Creates new instance of <see cref="CropCopySaveBehavior"/> and subscribes to events
         /// </summary>
         public CropCopySaveBehavior()
         {

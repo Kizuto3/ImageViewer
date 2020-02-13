@@ -19,10 +19,12 @@
                          DecelerationRatio="0.9"/>
     </Storyboard>
 
+    <!-- Animation to change background color to transparent -->
     <Storyboard x:Key="BackgroundToTransparent">
         <ColorAnimation To="Transparent" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
     </Storyboard>
 
+    <!-- Animation to change background color to light (see Colors.xaml) -->
     <Storyboard x:Key="BackgroundToLight">
         <ColorAnimation To="{StaticResource BackgroudLight}" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
     </Storyboard>
