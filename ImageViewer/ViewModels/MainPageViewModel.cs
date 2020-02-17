@@ -51,6 +51,21 @@ namespace ImageViewer.ViewModels
         private ShapeType _shape;
 
         /// <summary>
+        /// Main color of a shape to draw
+        /// </summary>
+        private string _mainColor = "#FFFFFF";
+
+        /// <summary>
+        /// Border color of a shape to draw
+        /// </summary>
+        private string _borderColor = "#FFFFFF";
+
+        /// <summary>
+        /// Background opacity of a shape to draw
+        /// </summary>
+        private double _backgroundOpacity;
+
+        /// <summary>
         /// Database context to manage database
         /// </summary>
         private readonly ApplicationContext _db;
@@ -125,6 +140,36 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
+        /// Main color of a shape to draw
+        /// </summary>
+        public string MainColor
+        {
+            get
+            {
+                return _mainColor;
+            }
+            set
+            {
+                SetProperty(ref _mainColor, value);
+            }
+        }
+
+        /// <summary>
+        /// Border color of a shape to draw
+        /// </summary>
+        public string BorderColor
+        {
+            get
+            {
+                return _borderColor;
+            }
+            set
+            {
+                SetProperty(ref _borderColor, value);
+            }
+        }
+
+        /// <summary>
         /// Thickness of the geometries` borders 
         /// </summary>
         public double LineThickness
@@ -132,6 +177,21 @@ namespace ImageViewer.ViewModels
             get
             {
                 return ThicknessCoeff / CurrentImage.ScaleY;
+            }
+        }
+
+        /// <summary>
+        /// Background opacity of a shape to draw
+        /// </summary>
+        public double BackgroundOpacity
+        {
+            get
+            {
+                return _backgroundOpacity;
+            }
+            set
+            {
+                SetProperty(ref _backgroundOpacity, value);
             }
         }
 
@@ -266,7 +326,11 @@ namespace ImageViewer.ViewModels
 
             _db = new ApplicationContext();
 
-            foreach(var model in _db.GetImageModels().Result)
+            _db.GetImageModels().Wait();
+
+            var models = _db.GetImageModels().Result;
+
+            foreach (var model in models)
             {
                 if (!File.Exists(model.FullPath)) continue;
                 Images.Add(model);
@@ -315,9 +379,16 @@ namespace ImageViewer.ViewModels
                     if (regex.IsMatch(file))
                     {
                         var image = new ImageModel(file);
+
                         if (Images.Contains(image)) continue;
+
                         _db.InsertImageModel(image);
-                        Images.Add(_db.GetImageModels().Result.Last());
+
+                        _db.GetLastImageModel().Wait();
+
+                        var lastImage = _db.GetLastImageModel().Result;
+
+                        Images.Add(lastImage);
                     }
                 }
             }

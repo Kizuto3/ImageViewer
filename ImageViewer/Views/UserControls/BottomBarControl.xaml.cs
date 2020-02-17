@@ -9,6 +9,8 @@ namespace ImageViewer.Views.UserControls
     /// </summary>
     public partial class BottomBarControl : UserControl
     {
+        #region Properties
+
         /// <summary>
         /// Dependency property to set up command to save an image
         /// </summary>
@@ -78,6 +80,8 @@ namespace ImageViewer.Views.UserControls
             get => (ICommand)GetValue(SelectAreaProperty);
             set => SetValue(SelectAreaProperty, value);
         }
+
+        #endregion
 
         public BottomBarControl()
         {

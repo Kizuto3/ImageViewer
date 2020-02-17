@@ -29,7 +29,6 @@
         /// </summary>
         public double BackgroundOpacity { get; set; }
 
-
         /// <summary>
         /// ID of <see cref="EditModel"/>
         /// </summary>

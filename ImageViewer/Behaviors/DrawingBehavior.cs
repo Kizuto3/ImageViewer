@@ -25,7 +25,7 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Dependency property to set up a geometry`s border color
         /// </summary>
-        public static DependencyProperty BorderColorBrushProperty = DependencyProperty.Register(nameof(BorderColorBrush), typeof(SolidColorBrush), typeof(DrawingBehavior), new PropertyMetadata(Brushes.Fuchsia));
+        public static DependencyProperty BorderColorProperty = DependencyProperty.Register(nameof(BorderColor), typeof(Color), typeof(DrawingBehavior), new PropertyMetadata(Colors.Fuchsia));
 
         /// <summary>
         /// Dependency property to set up a thickness of geometry`s border
@@ -55,10 +55,10 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// A geometry`s border color
         /// </summary>
-        public SolidColorBrush BorderColorBrush
+        public Color BorderColor
         {
-            get => (SolidColorBrush)GetValue(BorderColorBrushProperty);
-            set => SetValue(BorderColorBrushProperty, value);
+            get => (Color)GetValue(BorderColorProperty);
+            set => SetValue(BorderColorProperty, value);
         }
 
         /// <summary>
@@ -166,9 +166,9 @@ namespace ImageViewer.Behaviors
         {
             base.OnAttached();
 
-            AssociatedObject.MouseLeftButtonDown += OnMouseDown;
+            AssociatedObject.MouseLeftButtonDown += OnMouseLeftButtonDown;
             AssociatedObject.MouseMove += OnMouseMove;
-            AssociatedObject.MouseUp += OnMouseUp;
+            AssociatedObject.MouseLeftButtonUp += OnMouseLeftButtonUp;
             
             AssociatedObject.Loaded += AssociatedObject_Loaded;
         }
@@ -177,9 +177,9 @@ namespace ImageViewer.Behaviors
         {
             base.OnDetaching();
 
-            AssociatedObject.MouseLeftButtonDown -= OnMouseDown;
+            AssociatedObject.MouseLeftButtonDown -= OnMouseLeftButtonDown;
             AssociatedObject.MouseMove -= OnMouseMove;
-            AssociatedObject.MouseUp -= OnMouseUp;
+            AssociatedObject.MouseLeftButtonUp -= OnMouseLeftButtonUp;
 
             AssociatedObject.Loaded -= AssociatedObject_Loaded;
         }
@@ -189,7 +189,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (BehaviorType != BehaviorType.Drawing) return;
 
@@ -198,7 +198,7 @@ namespace ImageViewer.Behaviors
             var adorner = new GeometryAdorner(AssociatedObject, null)
             {
                 Cursor = Cursors.Hand,
-                BorderBrush = BorderColorBrush,
+                BorderBrush = new SolidColorBrush(BorderColor),
                 BorderThickness = BorderThickness,
                 BackgroundOpacity = BackgroundOpacity,
                 BackgroundColor = BackgroundColor
@@ -210,8 +210,23 @@ namespace ImageViewer.Behaviors
             _adorners.Add(adorner);
 
             adorner.MouseMove += OnMouseMove;
-            adorner.MouseLeftButtonDown += OnMouseDown;
-            adorner.MouseUp += OnMouseUp;
+            adorner.MouseLeftButtonDown += OnMouseLeftButtonDown;
+            adorner.MouseLeftButtonUp += OnMouseLeftButtonUp;
+            adorner.MouseRightButtonDown += OnMouseRightButtonDown;
+        }
+
+        /// <summary>
+        /// Removes adorner from layer
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            var adorner = sender as GeometryAdorner;
+            _layer.Remove(adorner);
+            _adorners.Remove(adorner);
+
+            _db.RemoveEditModel(adorner.ID);
         }
 
         /// <summary>
@@ -246,7 +261,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnMouseUp(object sender, MouseButtonEventArgs e)
+        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (BehaviorType != BehaviorType.Drawing) return;
 
@@ -349,6 +364,8 @@ namespace ImageViewer.Behaviors
 
             var pathGeometry = adorner.Geometry as PathGeometry;
 
+            if (pathGeometry == null) return;
+
             if (pathGeometry.Figures.Count == 0)
             {
                 var pathFigure = new PathFigure
@@ -398,13 +415,18 @@ namespace ImageViewer.Behaviors
 
             _imageModelID = imageModelID;
 
-            foreach (var shape in _db.GetEditModels(imageModelID).Result)
+            _db.GetEditModels(imageModelID).Wait();
+
+            var shapes = _db.GetEditModels(imageModelID).Result;
+
+            foreach (var shape in shapes)
             {
                 var borderColor = (Color)ColorConverter.ConvertFromString(shape.BorderBrush);
                 var backgroundColor = (Color)ColorConverter.ConvertFromString(shape.BackgroundColor);
 
                 var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
                 {
+                    ID = shape.ID,
                     Cursor = Cursors.Hand,
                     BorderBrush = new SolidColorBrush(borderColor),
                     BorderThickness = BorderThickness,
@@ -413,8 +435,9 @@ namespace ImageViewer.Behaviors
                 };
 
                 adorner.MouseMove += OnMouseMove;
-                adorner.MouseLeftButtonDown += OnMouseDown;
-                adorner.MouseUp += OnMouseUp;
+                adorner.MouseLeftButtonDown += OnMouseLeftButtonDown;
+                adorner.MouseLeftButtonUp += OnMouseLeftButtonUp;
+                adorner.MouseRightButtonDown += OnMouseRightButtonDown;
 
                 _adorners.Add(adorner);
                 _layer.Add(adorner);

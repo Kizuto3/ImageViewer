@@ -7,6 +7,10 @@ namespace ImageViewer.Adorners
     public class GeometryAdorner : Adorner
     {
         /// <summary>
+        /// ID of adorner
+        /// </summary>
+        public int ID { get; set; }
+        /// <summary>
         /// Geometry to draw on image
         /// </summary>
         public Geometry Geometry { get; set; }

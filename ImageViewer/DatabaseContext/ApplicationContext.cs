@@ -122,6 +122,28 @@ namespace ImageViewer.DatabaseContext
         }
 
         /// <summary>
+        /// Get all <see cref="ImageModel"/> from database
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ImageModel> GetLastImageModel()
+        {
+            OpenConnection();
+
+            ImageModel imageModel = new ImageModel();
+
+            const string query = "SELECT * FROM [ImageModels] ORDER BY [ID] DESC LIMIT 1";
+
+            using (_SQLiteConnection)
+            {
+                var result = await _SQLiteConnection.QueryAsync<ImageModel>(query);
+
+                imageModel = result.AsList()[0];
+            }
+
+            return imageModel;
+        }
+
+        /// <summary>
         /// Get <see cref="ImageModel"/> with <paramref name="imageModelID"/> from database
         /// </summary>
         /// <returns></returns>
@@ -585,7 +607,7 @@ namespace ImageViewer.DatabaseContext
         /// <summary>
         /// Remove <see cref="ImageModel"/> from database by ID
         /// </summary>
-        /// <param name="imageModelID"></param>
+        /// <param name="editModelID"></param>
         public async void RemoveImageModel(int imageModelID)
         {
             OpenConnection();
@@ -608,9 +630,34 @@ namespace ImageViewer.DatabaseContext
         }
 
         /// <summary>
-        /// Remove <see cref="ImageModel"/> from database by ID
+        /// Remove <see cref="EditModel"/> from database by ID
         /// </summary>
-        /// <param name="imageModelID"></param>
+        /// <param name="editModelID"></param>
+        public async void RemoveEditModel(int editModelID)
+        {
+            OpenConnection();
+
+            var query = "DELETE FROM [EditModels] WHERE [ID] = @ID";
+            using (var command = new SQLiteCommand(query, _SQLiteConnection))
+            {
+                var parameter = new SQLiteParameter
+                {
+                    ParameterName = "@ID",
+                    Value = editModelID,
+                    DbType = DbType.Int32
+                };
+                command.Parameters.Add(parameter);
+
+                await command.ExecuteNonQueryAsync();
+            }
+
+            CloseConnection();
+        }
+
+        /// <summary>
+        /// Removes editmodels whose image model id no longer exists
+        /// </summary>
+        /// <param name="EditModel"></param>
         public async void RemoveObsoleteEditModels()
         {
             OpenConnection();

@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
+             xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit"
              xmlns:attachedProperties="clr-namespace:ImageViewer.AttachedProperties"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="200">
@@ -11,40 +12,124 @@
     <Grid Width="0"
           attachedProperties:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsEditBarVisible}"
           Style="{StaticResource SlideInOut}">
+        
         <Grid.RowDefinitions>
+            
+            <!-- Color pickers and opacity slider -->
+            <RowDefinition Height="Auto"/>
 
-            <!-- Draw rectangle button -->
+            <!-- Shapes to draw -->
             <RowDefinition Height="*" MinHeight="100"/>
-
-            <!-- Draw circle button -->
-            <RowDefinition Height="*" MinHeight="100"/>
-
-            <!-- Draw line button -->
-            <RowDefinition Height="*" MinHeight="100"/>
-
-            <!-- Marker button -->
-            <RowDefinition Height="*" MinHeight="100"/>
-
+            
         </Grid.RowDefinitions>
 
-        <!-- Draw rectangle button -->
-        <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawRectangle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
-            <Image Source="{StaticResource RectangleDrawingImage}" Height="50"/>
-        </Button>
+        <!-- Color pickers and opacity slider -->
+        <Grid Grid.Row="0">
 
-        <!-- Draw circle button -->
-        <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawCircle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
-            <Image Source="{StaticResource CircleDrawingImage}" Height="50"/>
-        </Button>
+            <Grid.RowDefinitions>
 
-        <!-- Draw line button -->
-        <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawLine, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
-            <Image Source="{StaticResource LineDrawingImage}" Height="50"/>
-        </Button>
+                <!-- Color pickers -->
+                <RowDefinition Height="*"/>
+                
+                <!-- Opacity slider -->
+                <RowDefinition Height="Auto"/>
+                
+            </Grid.RowDefinitions>
+            
+            <!-- Color pickers -->
+            <Grid Grid.Row="0">
+                
+                <Grid.ColumnDefinitions>
 
-        <!-- Marker button -->
-        <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Command="{Binding Path=DrawPolyline, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"> 
-            <Image Source="{StaticResource MarkerDrawingImage}" Height="50"/>
-        </Button>
+                    <!-- Main color picker container -->
+                    <ColumnDefinition Width="*"/>
+
+                    <!--Border color picker container -->
+                    <ColumnDefinition Width="*"/>
+
+                </Grid.ColumnDefinitions>
+
+                <!-- Main color picker container -->
+                <StackPanel Grid.Column="0" Orientation="Vertical" Margin="10">
+
+                    <TextBlock HorizontalAlignment="Center" Text="Main Color" FontSize="16"/>
+
+                    <!-- Main color picker -->
+                    <xctk:ColorPicker Margin="5"
+                                      FontSize="14"
+                                      TabBackground="{StaticResource ForegroundLightBrush}"
+                                      DropDownBackground="{StaticResource ForegroundLightBrush}"
+                                      HeaderBackground="{StaticResource ForegroundLightBrush}"
+                                      SelectedColor="{Binding Path=MainColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+
+                </StackPanel>
+
+                <!--Border color picker container -->
+                <StackPanel Grid.Column="1" Orientation="Vertical" Margin="10">
+
+                    <TextBlock HorizontalAlignment="Center" Text="Border" FontSize="16"/>
+
+                    <!-- Border color picker -->
+                    <xctk:ColorPicker Margin="5" 
+                                      FontSize="14"
+                                      TabBackground="{StaticResource ForegroundLightBrush}"
+                                      HeaderBackground="{StaticResource ForegroundLightBrush}"
+                                      DropDownBackground="{StaticResource ForegroundLightBrush}"
+                                      SelectedColor="{Binding Path=BorderColor, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+
+                </StackPanel>
+            </Grid>
+
+            <!-- Opacity slider -->
+            <Slider Grid.Row="1" 
+                    Width="180" 
+                    Maximum="1" 
+                    Minimum="0" 
+                    Margin="5"
+                    ToolTip="Opacity of a background of a shape"
+                    HorizontalAlignment="Center"
+                    Value="{Binding Path=BackgroundOpacity, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+
+        </Grid>
+
+        <!-- Shapes to draw -->
+        <Grid Grid.Row="1">
+            
+            <Grid.RowDefinitions>
+
+                <!-- Draw rectangle button -->
+                <RowDefinition Height="*" MinHeight="100"/>
+
+                <!-- Draw circle button -->
+                <RowDefinition Height="*" MinHeight="100"/>
+
+                <!-- Draw line button -->
+                <RowDefinition Height="*" MinHeight="100"/>
+
+                <!-- Marker button -->
+                <RowDefinition Height="*" MinHeight="100"/>
+
+            </Grid.RowDefinitions>
+
+            <!-- Draw rectangle button -->
+            <Button Grid.Row="0" Style="{StaticResource Backgroundless}" ToolTip="Draw rectangle" Command="{Binding Path=DrawRectangle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                <Image Source="{StaticResource RectangleDrawingImage}" Height="50"/>
+            </Button>
+
+            <!-- Draw circle button -->
+            <Button Grid.Row="1" Style="{StaticResource Backgroundless}" ToolTip="Draw circle" Command="{Binding Path=DrawCircle, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                <Image Source="{StaticResource CircleDrawingImage}" Height="50"/>
+            </Button>
+
+            <!-- Draw line button -->
+            <Button Grid.Row="2" Style="{StaticResource Backgroundless}" ToolTip="Draw line" Command="{Binding Path=DrawLine, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+                <Image Source="{StaticResource LineDrawingImage}" Height="50"/>
+            </Button>
+
+            <!-- Marker button -->
+            <Button Grid.Row="3" Style="{StaticResource Backgroundless}" ToolTip="Draw" Command="{Binding Path=DrawPolyline, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"> 
+                <Image Source="{StaticResource MarkerDrawingImage}" Height="50"/>
+            </Button>
+        </Grid>
     </Grid>
 </UserControl>

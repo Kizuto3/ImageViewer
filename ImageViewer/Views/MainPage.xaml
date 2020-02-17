@@ -67,7 +67,10 @@
                                                   BehaviorType="{Binding Behavior, Mode=TwoWay}"
                                                   attachedPropetries:SizeObserver.Observe="True"
                                                   attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, UpdateSourceTrigger=PropertyChanged}"
-                                                  attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged}"/>
+                                                  attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged}"
+                                                  MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                                  BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                                  BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"/>
 
             <!-- Right side drop shadow -->
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
@@ -77,7 +80,10 @@
                                          DrawRectangle="{Binding DrawRectangleCommand}"
                                          DrawCircle="{Binding DrawCircleCommand}"
                                          DrawLine="{Binding DrawLineCommand}"
-                                         DrawPolyline="{Binding DrawPolylineCommand}"/>
+                                         DrawPolyline="{Binding DrawPolylineCommand}"
+                                         MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                         BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                         BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"/>
             
         </Grid>
 
