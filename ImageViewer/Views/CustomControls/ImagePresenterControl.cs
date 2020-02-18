@@ -1,5 +1,8 @@
 ﻿using ImageViewer.Abstractions;
+using ImageViewer.Models;
 using ImageViewer.ViewModels;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -58,6 +61,23 @@ namespace ImageViewer.Views.CustomControls
         /// Dependency property to set up a background color opacity of a shape to draw
         /// </summary>
         public DependencyProperty BackgroundOpacityProperty = DependencyProperty.Register(nameof(BackgroundOpacity), typeof(double), typeof(ImagePresenterControl), new PropertyMetadata(1d));
+
+        /// <summary>
+        /// Dependency property to set up all drawn shapes 
+        /// </summary>
+        public static DependencyProperty EditModelsProperty
+            = DependencyProperty.Register(nameof(EditModels), typeof(ObservableCollection<EditModel>), typeof(ImagePresenterControl), 
+                new PropertyMetadata(new ObservableCollection<EditModel>()));
+
+        /// <summary>
+        /// Dependency property to set up an ID of current image
+        /// </summary>
+        public static DependencyProperty CurrentImageIDProperty = DependencyProperty.Register(nameof(CurrentImageID), typeof(int), typeof(ImagePresenterControl), new PropertyMetadata(1));
+
+        /// <summary>
+        /// Dependency property to set up a command to invoke
+        /// </summary>
+        public static DependencyProperty CommandTypeProperty = DependencyProperty.Register(nameof(CommandType), typeof(CopyCropSaveBehaviorCommandType), typeof(ImagePresenterControl), new PropertyMetadata(CopyCropSaveBehaviorCommandType.None));
 
         /// <summary>
         /// An image source
@@ -147,6 +167,33 @@ namespace ImageViewer.Views.CustomControls
         {
             get => (double)GetValue(BackgroundOpacityProperty);
             set => SetValue(BackgroundOpacityProperty, value);
+        }
+
+        /// <summary>
+        /// Shapes drawn above image
+        /// </summary>
+        public ObservableCollection<EditModel> EditModels
+        {
+            get => (ObservableCollection<EditModel>)GetValue(EditModelsProperty);
+            set => SetValue(EditModelsProperty, value);
+        }
+
+        /// <summary>
+        /// ID of current image
+        /// </summary>
+        public int CurrentImageID
+        {
+            get => (int)GetValue(CurrentImageIDProperty);
+            set => SetValue(CurrentImageIDProperty, value);
+        }
+
+        /// <summary>
+        /// Command to invoke
+        /// </summary>
+        public CopyCropSaveBehaviorCommandType CommandType
+        {
+            get => (CopyCropSaveBehaviorCommandType)GetValue(CommandTypeProperty);
+            set => SetValue(CommandTypeProperty, value);
         }
 
         /// <summary>

@@ -3,10 +3,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:ImageViewer.Views.CustomControls"
     xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
-    xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
-    xmlns:behaviors="clr-namespace:ImageViewer.Behaviors"
-    xmlns:views="clr-namespace:ImageViewer.Views">
+    xmlns:behaviors="clr-namespace:ImageViewer.Behaviors">
 
     <Style TargetType="{x:Type local:ImagePresenterControl}">
         <Setter Property="Template">
@@ -34,7 +32,8 @@
                             <i:Interaction.Behaviors>
 
                                 <!-- Behavior that allows user to crop, copy and save the image -->
-                                <behaviors:CropCopySaveBehavior BehaviorType="{Binding Path=BehaviorType, RelativeSource={RelativeSource TemplatedParent}}" />
+                                <behaviors:CropCopySaveBehavior BehaviorType="{Binding Path=BehaviorType, RelativeSource={RelativeSource TemplatedParent}}"
+                                                                CommandType="{Binding Path=CommandType, RelativeSource={RelativeSource TemplatedParent}}"/>
 
                                 <!-- Behavior that allows user to draw shapes on the image -->
                                 <behaviors:DrawingBehavior Shape="{Binding Path=DrawingShape, RelativeSource={RelativeSource TemplatedParent}}"
@@ -42,7 +41,9 @@
                                                            BorderColor="{Binding Path=BorderColor, RelativeSource={RelativeSource TemplatedParent}}"
                                                            BackgroundColor="{Binding Path=MainColor, RelativeSource={RelativeSource TemplatedParent}}"
                                                            BorderThickness="{Binding Path=LineThickness, RelativeSource={RelativeSource TemplatedParent}}"
-                                                           BackgroundOpacity="{Binding Path=BackgroundOpacity, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                                           BackgroundOpacity="{Binding Path=BackgroundOpacity, RelativeSource={RelativeSource TemplatedParent}}"
+                                                           EditModels="{Binding Path=EditModels, RelativeSource={RelativeSource TemplatedParent}}"
+                                                           CurrentImageID="{Binding Path=CurrentImageID, RelativeSource={RelativeSource TemplatedParent}}"/>
                             </i:Interaction.Behaviors>
 
                         </Image>

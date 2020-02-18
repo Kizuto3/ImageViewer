@@ -19,7 +19,7 @@
             <RowDefinition Height="Auto"/>
 
             <!-- Shapes to draw -->
-            <RowDefinition Height="*" MinHeight="100"/>
+            <RowDefinition Height="*"/>
             
         </Grid.RowDefinitions>
 

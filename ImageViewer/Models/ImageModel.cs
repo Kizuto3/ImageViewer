@@ -1,5 +1,6 @@
 ﻿using Prism.Mvvm;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace ImageViewer.Models
@@ -37,6 +38,11 @@ namespace ImageViewer.Models
         /// Actual height of the image
         /// </summary>
         private double _height;
+
+        /// <summary>
+        /// Edit models of this image model
+        /// </summary>
+        private ObservableCollection<EditModel> _editModels;
 
         #endregion
 
@@ -138,6 +144,21 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
+        /// Edit models of this image model
+        /// </summary>
+        public ObservableCollection<EditModel> EditModels
+        {
+            get
+            {
+                return _editModels;
+            }
+            set
+            {
+                SetProperty(ref _editModels, value);
+            }
+        }
+
+        /// <summary>
         /// File name of the image
         /// </summary>
         public string FileName
@@ -159,18 +180,20 @@ namespace ImageViewer.Models
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
+            _editModels = new ObservableCollection<EditModel>();
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="path">Full path to image</param>
-        public ImageModel(string path)
+        public ImageModel(string path, ObservableCollection<EditModel> editModels)
         {
             _fullPath = path;
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
+            _editModels = editModels;
         }
 
         /// <summary>

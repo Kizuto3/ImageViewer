@@ -8,9 +8,6 @@ using ImageViewer.DatabaseContext;
 using System.IO;
 using System.Linq;
 using Prism.Events;
-using ImageViewer.EventAggregators;
-using CommonServiceLocator;
-using Unity;
 using ImageViewer.Abstractions;
 
 namespace ImageViewer.ViewModels
@@ -51,6 +48,11 @@ namespace ImageViewer.ViewModels
         private ShapeType _shape;
 
         /// <summary>
+        /// Command to invoke
+        /// </summary>
+        private CopyCropSaveBehaviorCommandType _CCSBehaviorCommandType;
+
+        /// <summary>
         /// Main color of a shape to draw
         /// </summary>
         private string _mainColor = "#FFFFFF";
@@ -69,11 +71,6 @@ namespace ImageViewer.ViewModels
         /// Database context to manage database
         /// </summary>
         private readonly ApplicationContext _db;
-
-        /// <summary>
-        /// Event aggregator to publish <see cref="IDSentEvent"/> event
-        /// </summary>
-        private readonly IEventAggregator _ea;
 
         #endregion
 
@@ -136,6 +133,21 @@ namespace ImageViewer.ViewModels
             set
             {
                 SetProperty(ref _shape, value);
+            }
+        }
+
+        /// <summary>
+        /// Command to invoke
+        /// </summary>
+        public CopyCropSaveBehaviorCommandType CommandType
+        {
+            get
+            {
+                return _CCSBehaviorCommandType;
+            }
+            set
+            {
+                SetProperty(ref _CCSBehaviorCommandType, value);
             }
         }
 
@@ -349,10 +361,11 @@ namespace ImageViewer.ViewModels
             }
 
             CurrentImage = _db.GetImageModel(CurrentPage.ImageModelID);
-            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
 
-            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
-            _ea = container.Resolve<IEventAggregator>();
+            _db.GetEditModels(CurrentImage.ID).Wait();
+
+            CurrentImage.EditModels = new ObservableCollection<EditModel>(_db.GetEditModels(CurrentImage.ID).Result);
+            CurrentImage.PropertyChanged += LineThickness_PropertyChanged;
         }
 
         #endregion
@@ -378,7 +391,7 @@ namespace ImageViewer.ViewModels
                 {
                     if (regex.IsMatch(file))
                     {
-                        var image = new ImageModel(file);
+                        var image = new ImageModel(file, new ObservableCollection<EditModel>());
 
                         if (Images.Contains(image)) continue;
 
@@ -422,8 +435,6 @@ namespace ImageViewer.ViewModels
             CurrentImage.ScaleX *= ScaleIn;
             CurrentImage.ScaleY *= ScaleIn;
 
-            _ea.GetEvent<ChangeBorderThicknessEvent>().Publish();
-
             _db.UpdateImageModel(CurrentImage);
         }
 
@@ -434,8 +445,6 @@ namespace ImageViewer.ViewModels
         {
             CurrentImage.ScaleX *= ScaleOut;
             CurrentImage.ScaleY *= ScaleOut;
-
-            _ea.GetEvent<ChangeBorderThicknessEvent>().Publish();
 
             _db.UpdateImageModel(CurrentImage);
         }
@@ -493,10 +502,12 @@ namespace ImageViewer.ViewModels
 
                 RaisePropertyChanged(nameof(LineThickness));
 
+                _db.GetEditModels(CurrentImage.ID).Wait();
+
+                CurrentImage.EditModels = new ObservableCollection<EditModel>(_db.GetEditModels(CurrentImage.ID).Result);
+
                 CurrentPage.ImageModelID = CurrentImage.ID;
             }
-
-            _ea.GetEvent<IDSentEvent>().Publish(CurrentPage.ImageModelID);
 
             _db.UpdatePageModel(CurrentPage);
         }
@@ -550,7 +561,8 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void SaveImage()
         {
-            _ea.GetEvent<SaveImageEvent>().Publish();
+            CommandType = CopyCropSaveBehaviorCommandType.Save;
+            RollbackCommandType();
         }
 
         /// <summary>
@@ -558,7 +570,8 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void CropImage()
         {
-            _ea.GetEvent<CropImageEvent>().Publish();
+            CommandType = CopyCropSaveBehaviorCommandType.Crop;
+            RollbackCommandType();
         }
 
         /// <summary>
@@ -566,7 +579,8 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void RemoveCrop()
         {
-            _ea.GetEvent<RemoveCropEvent>().Publish();
+            CommandType = CopyCropSaveBehaviorCommandType.RemoveCrop;
+            RollbackCommandType();
         }
 
         /// <summary>
@@ -574,7 +588,16 @@ namespace ImageViewer.ViewModels
         /// </summary>
         private void CopyImage()
         {
-            _ea.GetEvent<CopyImageEvent>().Publish();
+            CommandType = CopyCropSaveBehaviorCommandType.Copy;
+            RollbackCommandType();
+        }
+
+        /// <summary>
+        /// Change <see cref="CommandType"/> back to <see cref="CopyCropSaveBehaviorCommandType.None"/>
+        /// </summary>
+        private void RollbackCommandType()
+        {
+            CommandType = CopyCropSaveBehaviorCommandType.None;
         }
 
         /// <summary>

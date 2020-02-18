@@ -10,10 +10,6 @@ using ImageViewer.Adorners;
 using System.Windows.Documents;
 using Microsoft.Win32;
 using ImageViewer.Abstractions;
-using CommonServiceLocator;
-using Prism.Events;
-using Unity;
-using ImageViewer.EventAggregators;
 
 namespace ImageViewer.Behaviors
 {
@@ -27,12 +23,57 @@ namespace ImageViewer.Behaviors
         public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(CropCopySaveBehavior), new PropertyMetadata(BehaviorType.None));
 
         /// <summary>
+        /// Dependency property to set up a command to invoke
+        /// </summary>
+        public static DependencyProperty CommandTypeProperty = DependencyProperty.Register(nameof(CommandType), typeof(CopyCropSaveBehaviorCommandType), typeof(CropCopySaveBehavior), 
+            new PropertyMetadata(CopyCropSaveBehaviorCommandType.None, new PropertyChangedCallback(CommandTypeValueUpdate)));
+
+        /// <summary>
         /// Behavior to use
         /// </summary>
         public BehaviorType BehaviorType
         {
             get => (BehaviorType)GetValue(BehaviorTypeProperty);
             set => SetValue(BehaviorTypeProperty, value);
+        }
+
+        /// <summary>
+        /// Command to invoke
+        /// </summary>
+        public CopyCropSaveBehaviorCommandType CommandType
+        {
+            get => (CopyCropSaveBehaviorCommandType)GetValue(CommandTypeProperty);
+            set => SetValue(CommandTypeProperty, value);
+        }
+
+        #endregion
+
+        #region Property changed callbacks
+
+        /// <summary>
+        /// Calls method requested by <see cref="CopyCropSaveBehaviorCommandType"/>
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
+        private static void CommandTypeValueUpdate(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var behavior = d as CropCopySaveBehavior;
+
+            switch (behavior.CommandType)
+            {
+                case CopyCropSaveBehaviorCommandType.Save:
+                    behavior.OnSave();
+                    break;
+                case CopyCropSaveBehaviorCommandType.Copy:
+                    behavior.OnCopy();
+                    break;
+                case CopyCropSaveBehaviorCommandType.Crop:
+                    behavior.OnCrop();
+                    break;
+                case CopyCropSaveBehaviorCommandType.RemoveCrop:
+                    behavior.OnRemoveCrop();
+                    break;
+            }
         }
 
         #endregion
@@ -60,20 +101,6 @@ namespace ImageViewer.Behaviors
         private AdornerLayer _layer;
 
         #endregion
-
-        /// <summary>
-        /// Creates new instance of <see cref="CropCopySaveBehavior"/> and subscribes to events
-        /// </summary>
-        public CropCopySaveBehavior()
-        {
-            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
-            var ea = container.Resolve<IEventAggregator>();
-
-            ea.GetEvent<SaveImageEvent>().Subscribe(OnSave);
-            ea.GetEvent<CropImageEvent>().Subscribe(OnCrop);
-            ea.GetEvent<RemoveCropEvent>().Subscribe(OnRemoveCrop);
-            ea.GetEvent<CopyImageEvent>().Subscribe(OnCopy);
-        }
 
         #region Methods
 
@@ -115,11 +142,9 @@ namespace ImageViewer.Behaviors
                     Height = Math.Abs(_startPoint.Y - _endPoint.Y)
                 };
 
-                var rectangleGeometry = new RectangleGeometry(rect);
-
                 //Set adorner`s Rect object to new rectangle
                 _adorner.Rect = rect;
-                _adorner.Geometry = rectangleGeometry;
+                _adorner.Geometry = new RectangleGeometry(rect);
 
                 //And invalidate it`s visual
                 _adorner.InvalidateVisual();

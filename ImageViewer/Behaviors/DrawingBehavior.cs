@@ -7,14 +7,11 @@ using System.Windows.Media;
 using ImageViewer.Adorners;
 using System.Windows.Documents;
 using System.Collections.Generic;
-using Unity;
-using Prism.Events;
-using CommonServiceLocator;
-using ImageViewer.EventAggregators;
 using ImageViewer.DatabaseContext;
 using System.Linq;
 using ImageViewer.Models;
 using ImageViewer.Abstractions;
+using System.Collections.ObjectModel;
 
 namespace ImageViewer.Behaviors
 {
@@ -30,7 +27,8 @@ namespace ImageViewer.Behaviors
         /// <summary>
         /// Dependency property to set up a thickness of geometry`s border
         /// </summary>
-        public static DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(DrawingBehavior), new PropertyMetadata(1d));
+        public static DependencyProperty BorderThicknessProperty = DependencyProperty.Register(nameof(BorderThickness), typeof(double), typeof(DrawingBehavior), 
+            new PropertyMetadata(1d, new PropertyChangedCallback(BorderThicknessChanged)));
 
         /// <summary>
         /// Dependency property to set up an opacity of a geometry
@@ -48,9 +46,21 @@ namespace ImageViewer.Behaviors
         public static DependencyProperty ShapeProperty = DependencyProperty.Register(nameof(Shape), typeof(ShapeType), typeof(DrawingBehavior), new PropertyMetadata(ShapeType.None));
 
         /// <summary>
-        /// Dependency property to set up a shape to be drawn
+        /// Dependency property to set up a behavior to use
         /// </summary>
         public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(DrawingBehavior), new PropertyMetadata(BehaviorType.None));
+
+        /// <summary>
+        /// Dependency property to set up all drawn shapes 
+        /// </summary>
+        public static DependencyProperty EditModelsProperty
+            = DependencyProperty.Register(nameof(EditModels), typeof(ObservableCollection<EditModel>), typeof(DrawingBehavior), 
+                new PropertyMetadata(new ObservableCollection<EditModel>(), new PropertyChangedCallback(EditModelsUpdate)));
+
+        /// <summary>
+        /// Dependency property to set up a ID of current image
+        /// </summary>
+        public static DependencyProperty CurrentImageIDProperty = DependencyProperty.Register(nameof(CurrentImageID), typeof(int), typeof(DrawingBehavior), new PropertyMetadata(1));
 
         /// <summary>
         /// A geometry`s border color
@@ -106,6 +116,52 @@ namespace ImageViewer.Behaviors
             set => SetValue(BehaviorTypeProperty, value);
         }
 
+        /// <summary>
+        /// Shapes drawn above image
+        /// </summary>
+        public ObservableCollection<EditModel> EditModels
+        {
+            get => (ObservableCollection<EditModel>)GetValue(EditModelsProperty);
+            set => SetValue(EditModelsProperty, value);
+        }
+
+        /// <summary>
+        /// ID of current image
+        /// </summary>
+        public int CurrentImageID
+        {
+            get => (int)GetValue(CurrentImageIDProperty);
+            set => SetValue(CurrentImageIDProperty, value);
+        }
+
+        #endregion
+
+        #region Property changed callbacks
+
+        /// <summary>
+        /// Call <see cref="DrawGeometries(ObservableCollection{EditModel})"/> when <see cref="EditModels"/> changes ref
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
+        private static void EditModelsUpdate(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var behavior = d as DrawingBehavior;
+
+            behavior.DrawGeometries(behavior.EditModels);
+        }
+
+        /// <summary>
+        /// Call <see cref="ChangeBorderThickness"/> when <see cref="BorderThickness"/> changes it`s value
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
+        private static void BorderThicknessChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var behavior = d as DrawingBehavior;
+
+            behavior.ChangeBorderThickness();
+        }
+
         #endregion
 
         #region Private Members
@@ -119,11 +175,6 @@ namespace ImageViewer.Behaviors
         /// End point of the rectagle to crop
         /// </summary>
         private Point _endPoint; 
-
-        /// <summary>
-        /// ID of current image
-        /// </summary>
-        private int _imageModelID;
 
         /// <summary>
         /// Adorners that will be added to image adorner layer
@@ -149,15 +200,6 @@ namespace ImageViewer.Behaviors
         {
             _adorners = new List<GeometryAdorner>();
             _db = new ApplicationContext();
-
-            var container = ServiceLocator.Current.GetInstance<IUnityContainer>();
-            var ea = container.Resolve<IEventAggregator>();
-
-            ea.GetEvent<IDSentEvent>().Subscribe(DrawGeometries);
-            ea.GetEvent<ChangeBorderThicknessEvent>().Subscribe(ChangeBorderThickness);
-
-            var page = _db.GetPageModel();
-            _imageModelID = page.ImageModelID;
         }
 
         #region Methods
@@ -272,7 +314,9 @@ namespace ImageViewer.Behaviors
             var bgOpacity = _adorners.Last().BackgroundOpacity;
             var borderBrush = _adorners.Last().BorderBrush.ToString();
 
-            _db.InsertEditModel(new EditModel(_imageModelID, path, bgColor, bgOpacity, borderBrush));
+            var editModel = new EditModel(CurrentImageID, path, bgColor, bgOpacity, borderBrush);
+            _db.InsertEditModel(editModel);
+            EditModels.Add(editModel);
         }
 
         /// <summary>
@@ -282,7 +326,7 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
-            DrawGeometries(_imageModelID);
+            DrawGeometries(EditModels);
         }
 
         /// <summary>
@@ -386,6 +430,8 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void ChangeBorderThickness()
         {
+            if (AssociatedObject == null) return;
+
             if (_layer == null)
             {
                 _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
@@ -401,8 +447,10 @@ namespace ImageViewer.Behaviors
         /// Gets all geometries related to image with <paramref name="imageModelID"/> from database and draws them
         /// </summary>
         /// <param name="imageModelID">ID of image</param>
-        private void DrawGeometries(int imageModelID)
+        private void DrawGeometries(ObservableCollection<EditModel> editModels)
         {
+            if (AssociatedObject == null) return;
+
             if (_layer == null)
             {
                 _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
@@ -413,24 +461,18 @@ namespace ImageViewer.Behaviors
                 _layer.Remove(adorner);
             }
 
-            _imageModelID = imageModelID;
-
-            _db.GetEditModels(imageModelID).Wait();
-
-            var shapes = _db.GetEditModels(imageModelID).Result;
-
-            foreach (var shape in shapes)
+            foreach (var model in editModels)
             {
-                var borderColor = (Color)ColorConverter.ConvertFromString(shape.BorderBrush);
-                var backgroundColor = (Color)ColorConverter.ConvertFromString(shape.BackgroundColor);
+                var borderColor = (Color)ColorConverter.ConvertFromString(model.BorderBrush);
+                var backgroundColor = (Color)ColorConverter.ConvertFromString(model.BackgroundColor);
 
-                var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(shape.Path))
+                var adorner = new GeometryAdorner(AssociatedObject, Geometry.Parse(model.Path))
                 {
-                    ID = shape.ID,
+                    ID = model.ID,
                     Cursor = Cursors.Hand,
                     BorderBrush = new SolidColorBrush(borderColor),
                     BorderThickness = BorderThickness,
-                    BackgroundOpacity = shape.BackgroundOpacity,
+                    BackgroundOpacity = model.BackgroundOpacity,
                     BackgroundColor = backgroundColor
                 };
 

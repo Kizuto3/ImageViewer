@@ -70,7 +70,10 @@
                                                   attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged}"
                                                   MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
                                                   BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
-                                                  BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"/>
+                                                  BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"
+                                                  EditModels="{Binding CurrentImage.EditModels, Mode=TwoWay}"
+                                                  CurrentImageID="{Binding CurrentImage.ID, Mode=TwoWay}"
+                                                  CommandType="{Binding CommandType, Mode=TwoWay}"/>
 
             <!-- Right side drop shadow -->
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
