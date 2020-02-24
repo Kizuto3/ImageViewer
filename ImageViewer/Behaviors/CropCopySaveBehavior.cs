@@ -10,6 +10,7 @@ using ImageViewer.Adorners;
 using System.Windows.Documents;
 using Microsoft.Win32;
 using ImageViewer.Abstractions;
+using System.Linq;
 
 namespace ImageViewer.Behaviors
 {
@@ -18,9 +19,10 @@ namespace ImageViewer.Behaviors
         #region Properties
 
         /// <summary>
-        /// Dependency property to set up a shape to be drawn
+        /// Dependency property to set up a behavior to use
         /// </summary>
-        public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(CropCopySaveBehavior), new PropertyMetadata(BehaviorType.None));
+        public static DependencyProperty BehaviorTypeProperty = DependencyProperty.Register(nameof(BehaviorType), typeof(BehaviorType), typeof(CropCopySaveBehavior), 
+            new PropertyMetadata(BehaviorType.None, new PropertyChangedCallback(BehaviorTypeValueUpdate)));
 
         /// <summary>
         /// Dependency property to set up a command to invoke
@@ -49,6 +51,25 @@ namespace ImageViewer.Behaviors
         #endregion
 
         #region Property changed callbacks
+
+        /// <summary>
+        /// Removes rectangle area from image adorner layer if <see cref="BehaviorType"/> does not equal to <see cref="BehaviorType.CropCopySave"/>
+        /// </summary>
+        /// <param name="d"></param>
+        /// <param name="e"></param>
+        private static void BehaviorTypeValueUpdate(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var behavior = d as CropCopySaveBehavior;
+
+            if (behavior.BehaviorType != BehaviorType.CropCopySave)
+            {
+                if (behavior._layer != null && behavior._adorner != null)
+                {
+                    behavior._layer.Remove(behavior._adorner);
+                    behavior._adorner = null;
+                }
+            }
+        }
 
         /// <summary>
         /// Calls method requested by <see cref="CopyCropSaveBehaviorCommandType"/>
@@ -127,7 +148,7 @@ namespace ImageViewer.Behaviors
         /// <param name="e"></param>
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (BehaviorType != BehaviorType.CropCopySave) return;
+            if (BehaviorType != BehaviorType.CropCopySave || _adorner == null) return;
 
             if (e.LeftButton == MouseButtonState.Pressed)
             {
@@ -181,8 +202,9 @@ namespace ImageViewer.Behaviors
                 //Set it`s mouse event handlers
                 _adorner.MouseMove += OnMouseMove;
                 _adorner.MouseDown += OnMouseDown;
-
-                //And add it to the adorner layer
+            }
+            if (!_layer.GetAdorners(AssociatedObject).Contains(_adorner))
+            {
                 _layer.Add(_adorner);
             }
         }
@@ -195,12 +217,10 @@ namespace ImageViewer.Behaviors
             if (_adorner != null)
             {
                 //Clip an image using RectangleGeometry. 
-                AssociatedObject.Clip = new RectangleGeometry(_adorner.Rect);
+                AssociatedObject.Clip = _adorner.Geometry as RectangleGeometry;
 
                 //Remove the adorner on image
                 _layer.Remove(_adorner);
-
-                _adorner = null;
             }
         }
 
@@ -209,7 +229,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void OnCopy()
         {
-            var bmpCopied = ImageToRTB(AssociatedObject);
+            var bmpCopied = ImageToCroppedBitmap(AssociatedObject);
             if (bmpCopied != null)
             {
                 Clipboard.SetImage(bmpCopied);
@@ -222,7 +242,7 @@ namespace ImageViewer.Behaviors
         /// </summary>
         private void OnSave()
         {
-            var bmpCopied = ImageToRTB(AssociatedObject);
+            var bmpCopied = ImageToCroppedBitmap(AssociatedObject);
 
             if (bmpCopied != null)
             {
@@ -253,24 +273,30 @@ namespace ImageViewer.Behaviors
         /// </summary>
         /// <param name="image"></param>
         /// <returns></returns>
-        private RenderTargetBitmap ImageToRTB(Image image)
+        private CroppedBitmap ImageToCroppedBitmap(Image image)
         {
-            double width = image.ActualWidth;
-            double height = image.ActualHeight;
-            RenderTargetBitmap bmpCopied = null;
+            var layer = AdornerLayer.GetAdornerLayer(image);
 
-            if (width > 0 && height > 0)
-            {
-                bmpCopied = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), 96, 96, PixelFormats.Default);
-                DrawingVisual dv = new DrawingVisual();
-                using (DrawingContext dc = dv.RenderOpen())
-                {
-                    VisualBrush vb = new VisualBrush(image);
-                    dc.DrawRectangle(vb, null, new Rect(new Point(), new Size(width, height)));
-                }
-                bmpCopied.Render(dv);
-            }
-            return bmpCopied;
+            layer.UpdateLayout();
+
+            var container = VisualTreeHelper.GetParent(layer) as Visual;
+
+            Rect rect = _adorner == null ? new Rect(image.RenderSize) : _adorner.Rect;
+
+            var relativeElementBounds = image.TransformToAncestor(container).TransformBounds(rect);
+
+            int width = (int)relativeElementBounds.Width;
+            int height = (int)relativeElementBounds.Height;
+            int x = (int)relativeElementBounds.X;
+            int y = (int)relativeElementBounds.Y;
+
+            var bmpCopied = new RenderTargetBitmap((int)image.RenderSize.Width, (int)image.RenderSize.Height, 96, 96, PixelFormats.Default);
+
+            bmpCopied.Render(container);
+
+            var croppedBitmap = new CroppedBitmap(bmpCopied, new Int32Rect(x, y, width, height));
+
+            return croppedBitmap;
         }
 
         #endregion

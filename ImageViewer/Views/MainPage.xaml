@@ -99,7 +99,7 @@
                                        CopyImage="{Binding CopyImageCommand}"
                                        CropImage="{Binding CropImageCommand}"
                                        RemoveCrop="{Binding RemoveCropCommand}"
-                                       SelectArea="{Binding ChangeBehaviorToCCSCommand}"/>
+                                       SelectArea="{Binding ChangeBehaviorToCopyCropSaveCommand}"/>
         
     </Grid>
 </Page>

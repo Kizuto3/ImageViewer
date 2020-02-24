@@ -456,9 +456,14 @@ namespace ImageViewer.Behaviors
                 _layer = AdornerLayer.GetAdornerLayer(AssociatedObject);
             }
 
-            foreach (var adorner in _adorners)
+            var adorners = _layer.GetAdorners(AssociatedObject);
+
+            if (adorners != null)
             {
-                _layer.Remove(adorner);
+                foreach (var adorner in adorners)
+                {
+                    _layer.Remove(adorner);
+                }
             }
 
             foreach (var model in editModels)

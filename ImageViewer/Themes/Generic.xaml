@@ -14,7 +14,9 @@
 
                         <!-- The image -->
                         <Image RenderTransformOrigin="0.5, 0.5"
+                               HorizontalAlignment="Center"
                                VerticalAlignment="Center"
+                               x:Name="CurrentImage"
                                attachedPropetries:SizeObserver.Observe="{TemplateBinding attachedPropetries:SizeObserver.Observe}"
                                attachedPropetries:SizeObserver.ObservedHeight="{TemplateBinding attachedPropetries:SizeObserver.ObservedHeight}"
                                attachedPropetries:SizeObserver.ObservedWidth="{TemplateBinding attachedPropetries:SizeObserver.ObservedWidth}"
@@ -23,7 +25,8 @@
                             <Image.LayoutTransform>
                                 <TransformGroup>
                                     <ScaleTransform ScaleX="{Binding Path=ScaleX, RelativeSource={RelativeSource TemplatedParent}}" 
-                                                    ScaleY="{Binding Path=ScaleY, RelativeSource={RelativeSource TemplatedParent}}"/>
+                                                    ScaleY="{Binding Path=ScaleY, RelativeSource={RelativeSource TemplatedParent}}"
+                                                    x:Name="ImgScaleTransform"/>
 
                                     <RotateTransform Angle="{Binding Path=RotationAngle, RelativeSource={RelativeSource TemplatedParent}}"/>
                                 </TransformGroup>

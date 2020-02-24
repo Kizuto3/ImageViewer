@@ -57,7 +57,7 @@
                 <Setter Property="MinWidth" Value="0"/>
                 <Setter Property="Height" Value="14"/>
                 <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
-                <Setter Property="Margin" Value="0 -14 0 0" />
+                <Setter Property="Margin" Value="-2 -14 0 0" />
 
                 <Setter Property="Template">
                     <Setter.Value>

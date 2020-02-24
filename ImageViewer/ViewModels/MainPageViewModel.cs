@@ -7,7 +7,6 @@ using System.Text.RegularExpressions;
 using ImageViewer.DatabaseContext;
 using System.IO;
 using System.Linq;
-using Prism.Events;
 using ImageViewer.Abstractions;
 
 namespace ImageViewer.ViewModels
@@ -17,13 +16,13 @@ namespace ImageViewer.ViewModels
     /// </summary>
     class MainPageViewModel : BindableBase
     {
-        private const double ScaleIn = 1.1;
+        public const double ScaleInCoef = 1.1;
 
-        private const double ScaleOut = 0.9;
+        public const double ScaleOutCoef = 0.909090909;
 
-        private const double RotationAngle = 90;
+        public const double RotationAngle = 90;
 
-        private const double ThicknessCoeff = 5;
+        public const double ThicknessCoef = 5;
 
         #region Private Members
 
@@ -50,7 +49,7 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Command to invoke
         /// </summary>
-        private CopyCropSaveBehaviorCommandType _CCSBehaviorCommandType;
+        private CopyCropSaveBehaviorCommandType _CommandType;
 
         /// <summary>
         /// Main color of a shape to draw
@@ -143,11 +142,11 @@ namespace ImageViewer.ViewModels
         {
             get
             {
-                return _CCSBehaviorCommandType;
+                return _CommandType;
             }
             set
             {
-                SetProperty(ref _CCSBehaviorCommandType, value);
+                SetProperty(ref _CommandType, value);
             }
         }
 
@@ -188,7 +187,7 @@ namespace ImageViewer.ViewModels
         {
             get
             {
-                return ThicknessCoeff / CurrentImage.ScaleY;
+                return ThicknessCoef / CurrentImage.ScaleY;
             }
         }
 
@@ -284,7 +283,7 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Command to change behavior type to CopyCropSave 
         /// </summary>
-        public DelegateCommand ChangeBehaviorToCCSCommand { get; }
+        public DelegateCommand ChangeBehaviorToCopyCropSaveCommand { get; }
 
         /// <summary>
         /// Command to save an image
@@ -328,7 +327,7 @@ namespace ImageViewer.ViewModels
             DrawCircleCommand = new DelegateCommand(DrawCircle);
             DrawLineCommand = new DelegateCommand(DrawLine);
             DrawPolylineCommand = new DelegateCommand(DrawPolyline);
-            ChangeBehaviorToCCSCommand = new DelegateCommand(ChangeBehaviorToCCS);
+            ChangeBehaviorToCopyCropSaveCommand = new DelegateCommand(ChangeBehaviorToCopyCropSave);
             SaveImageCommand = new DelegateCommand(SaveImage);
             CropImageCommand = new DelegateCommand(CropImage);
             CopyImageCommand = new DelegateCommand(CopyImage);
@@ -428,23 +427,23 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
-        /// Increases image scale by <see cref="ScaleIn"/> (1.1)
+        /// Increases image scale by <see cref="ScaleInCoef"/> (1.1)
         /// </summary>
         public void ZoomIn()
         {
-            CurrentImage.ScaleX *= ScaleIn;
-            CurrentImage.ScaleY *= ScaleIn;
+            CurrentImage.ScaleX *= ScaleInCoef;
+            CurrentImage.ScaleY *= ScaleInCoef;
 
             _db.UpdateImageModel(CurrentImage);
         }
 
         /// <summary>
-        /// Increases image scale by <see cref="ScaleOut"/> (0.9)
+        /// Increases image scale by <see cref="ScaleOutCoef"/> (0.9)
         /// </summary>
         public void ZoomOut()
         {
-            CurrentImage.ScaleX *= ScaleOut;
-            CurrentImage.ScaleY *= ScaleOut;
+            CurrentImage.ScaleX *= ScaleOutCoef;
+            CurrentImage.ScaleY *= ScaleOutCoef;
 
             _db.UpdateImageModel(CurrentImage);
         }
@@ -551,13 +550,13 @@ namespace ImageViewer.ViewModels
         /// <summary>
         /// Set behavior to CopyCropSave or nothing
         /// </summary>
-        private void ChangeBehaviorToCCS()
+        private void ChangeBehaviorToCopyCropSave()
         {
             Behavior = Behavior == BehaviorType.CropCopySave? BehaviorType.None : BehaviorType.CropCopySave;
         }
 
         /// <summary>
-        /// Publish event to save an image to clipboard using <see cref="EventAggregator"/>
+        /// Sets <see cref="CommandType"/> to <see cref="CopyCropSaveBehaviorCommandType.Save"/> to invoke OnSave command from <see cref="Behaviors.CropCopySaveBehavior"/>
         /// </summary>
         private void SaveImage()
         {
@@ -566,7 +565,7 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
-        /// Publish event to crop an image to clipboard using <see cref="EventAggregator"/>
+        /// Sets <see cref="CommandType"/> to <see cref="CopyCropSaveBehaviorCommandType.Crop"/> to invoke OnCrop command from <see cref="Behaviors.CropCopySaveBehavior"/>
         /// </summary>
         private void CropImage()
         {
@@ -575,7 +574,7 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
-        /// Publish event to remove crop from an image to clipboard using <see cref="EventAggregator"/>
+        /// Sets <see cref="CommandType"/> to <see cref="CopyCropSaveBehaviorCommandType.RemoveCrop"/> to invoke OnRemoveCrop command from <see cref="Behaviors.CropCopySaveBehavior"/>
         /// </summary>
         private void RemoveCrop()
         {
@@ -584,7 +583,7 @@ namespace ImageViewer.ViewModels
         }
 
         /// <summary>
-        /// Publish event to copy an image to clipboard using <see cref="EventAggregator"/>
+        /// Sets <see cref="CommandType"/> to <see cref="CopyCropSaveBehaviorCommandType.Copy"/> to invoke OnCopy command from <see cref="Behaviors.CropCopySaveBehavior"/>
         /// </summary>
         private void CopyImage()
         {

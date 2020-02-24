@@ -1,7 +1,6 @@
 ﻿using ImageViewer.Abstractions;
 using ImageViewer.Models;
 using ImageViewer.ViewModels;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +11,11 @@ namespace ImageViewer.Views.CustomControls
 {
     public class ImagePresenterControl : Control
     {
+        /// <summary>
+        /// Magic constant to make scrollbar scroll almost to center of image
+        /// </summary>
+        private const double OffsetCoef = 32.5;
+
         /// <summary>
         /// Dependency property to set up an image source
         /// </summary>
@@ -199,7 +203,22 @@ namespace ImageViewer.Views.CustomControls
         /// <summary>
         /// ScrollViewer that holds image
         /// </summary>
-        ScrollViewer scrollViewer;
+        private ScrollViewer _scrollViewer;
+
+        /// <summary>
+        /// Scale transform of the image
+        /// </summary>
+        private ScaleTransform _imgScaleTransform;
+
+        /// <summary>
+        /// Old value of image scaleX transform
+        /// </summary>
+        private double _oldScaleX;
+
+        /// <summary>
+        /// Old value of image scaleY transform
+        /// </summary>
+        private double _oldScaleY;
 
         static ImagePresenterControl()
         {
@@ -210,11 +229,43 @@ namespace ImageViewer.Views.CustomControls
         {
             base.OnApplyTemplate();
 
-            scrollViewer = GetTemplateChild("ScrollElement") as ScrollViewer;
+            _scrollViewer = GetTemplateChild("ScrollElement") as ScrollViewer;
+            _imgScaleTransform = GetTemplateChild("ImgScaleTransform") as ScaleTransform;
 
-            scrollViewer.PreviewMouseWheel += ScrollViewer_PreviewMouseWheel;
+            _oldScaleX = _imgScaleTransform.ScaleX;
+            _oldScaleY = _imgScaleTransform.ScaleY;
+
+            _imgScaleTransform.Changed += ImgScaleTransform_Changed;
+            _scrollViewer.PreviewMouseWheel += ScrollViewer_PreviewMouseWheel;
         }
 
+        /// <summary>
+        /// Scrolls scrolbar to make image zoom to center 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ImgScaleTransform_Changed(object sender, System.EventArgs e)
+        {
+            if (_imgScaleTransform.ScaleX > _oldScaleX || _imgScaleTransform.ScaleY > _oldScaleY)
+            {
+                _scrollViewer.ScrollToHorizontalOffset(_scrollViewer.HorizontalOffset * MainPageViewModel.ScaleInCoef + OffsetCoef);
+                _scrollViewer.ScrollToVerticalOffset(_scrollViewer.VerticalOffset * MainPageViewModel.ScaleInCoef + OffsetCoef);
+            }
+            else
+            {
+                _scrollViewer.ScrollToHorizontalOffset(_scrollViewer.HorizontalOffset * MainPageViewModel.ScaleOutCoef - OffsetCoef);
+                _scrollViewer.ScrollToVerticalOffset(_scrollViewer.VerticalOffset * MainPageViewModel.ScaleOutCoef - OffsetCoef);
+            }
+
+            _oldScaleX = _imgScaleTransform.ScaleX;
+            _oldScaleY = _imgScaleTransform.ScaleY;
+        }
+
+        /// <summary>
+        /// Allows to zoom image on Ctrl+Scroll and move horizontal scrollbar on Alt+Scroll
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ScrollViewer_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             var context = DataContext as MainPageViewModel;
@@ -235,11 +286,11 @@ namespace ImageViewer.Views.CustomControls
             {
                 if (e.Delta > 0)
                 {
-                    scrollViewer.LineRight();
+                    _scrollViewer.LineRight();
                 }
                 else
                 {
-                    scrollViewer.LineLeft();
+                    _scrollViewer.LineLeft();
                 }
                 e.Handled = true;
             }

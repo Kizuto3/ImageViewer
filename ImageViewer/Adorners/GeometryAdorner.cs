@@ -44,16 +44,6 @@ namespace ImageViewer.Adorners
         /// Constructor
         /// </summary>
         /// <param name="adornedElement">Element to draw on</param>
-        /// <param name="rect">Rectangle to draw</param>
-        public GeometryAdorner(UIElement adornedElement, Rect rect) : base(adornedElement)
-        {
-            Rect = rect;
-        }
-
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="adornedElement">Element to draw on</param>
         /// <param name="geometry">Geometry to draw</param>
         public GeometryAdorner(UIElement adornedElement, Geometry geometry) : base(adornedElement)
         {
