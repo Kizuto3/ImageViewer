@@ -87,7 +87,6 @@
                                          MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
                                          BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
                                          BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"/>
-            
         </Grid>
 
         <!-- Bottom Drop Shadow-->
