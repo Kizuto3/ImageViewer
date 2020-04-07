@@ -8,17 +8,18 @@
       xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties"
       xmlns:userControls="clr-namespace:ImageViewer.Views.UserControls"
       xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
+      xmlns:customControls="clr-namespace:ImageViewer.Views.CustomControls"
       prism:ViewModelLocator.AutoWireViewModel="True"
       mc:Ignorable="d" 
       d:DesignHeight="700" d:DesignWidth="1200"
       Title="MainPage">
-    
+
     <Grid>
         <Grid.RowDefinitions>
-            
+
             <!-- The image and the side bars -->
             <RowDefinition Height="*"/>
-            
+
             <!-- Bottom dropshadow -->
             <RowDefinition Height="Auto"/>
 
@@ -27,17 +28,17 @@
 
         </Grid.RowDefinitions>
 
-        <!-- Main Container -->
+        <!-- The image and the side bars -->
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                
+
                 <!-- Image List -->
                 <ColumnDefinition Width="Auto"/>
 
                 <!-- Left side drop shadow -->
                 <ColumnDefinition Width="Auto"/>
 
-                <!-- Image -->
+                <!-- Image presenter -->
                 <ColumnDefinition Width="*"/>
 
                 <!-- Right side drop shadow -->
@@ -49,175 +50,55 @@
             </Grid.ColumnDefinitions>
 
             <!-- Image List -->
-            <userControls:ImageListControl Grid.Column="0"
-                                           attachedPropetries:VisibilityProperty.ListVisibility="{Binding IsListVisible}"
-                                           Style="{StaticResource SlideInOutReversed}"/>
+            <userControls:ImageListControl Grid.Column="0"/>
 
-            <!-- Left drop shadow -->
+            <!-- Left side drop shadow -->
             <Border Grid.Column="1" Style="{StaticResource VerticalDropShadow}"/>
 
-            <!-- Scrollviewer to make sure that image will fit in screen-->
-            <ScrollViewer MouseLeave="ScrollViewer_MouseLeave" Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                
-                <!-- The image -->
-                <Image RenderTransformOrigin="0.5, 0.5" 
-                   VerticalAlignment="Center"
-                   MouseDown="ImageView_MouseDown"
-                   MouseUp="ImageView_MouseUp"
-                   MouseMove="ImageView_MouseMove"
-                   attachedPropetries:SizeObserver.Observe="True"
-                   attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, Mode=TwoWay}"
-                   attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, Mode=TwoWay}"
-                   x:Name="CurrentImage"
-                   Source="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}}">
-
-                    <Image.LayoutTransform>
-                        <TransformGroup>
-                            <ScaleTransform ScaleX="{Binding CurrentImage.ScaleX}" ScaleY="{Binding CurrentImage.ScaleY}"/>
-                            <RotateTransform Angle="{Binding CurrentImage.Angle}"/>
-                        </TransformGroup>
-                    </Image.LayoutTransform>
-                    
-                </Image>
-
-            </ScrollViewer>
+            <!-- Image presenter -->
+            <customControls:ImagePresenterControl Grid.Column="2"
+                                                  x:Name="ImagePresenter"
+                                                  ScaleX="{Binding CurrentImage.ScaleX, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  ScaleY="{Binding CurrentImage.ScaleY, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  RotationAngle="{Binding CurrentImage.Angle, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                                  ImageSource="{Binding CurrentImage.FullPath, UpdateSourceTrigger=PropertyChanged, Converter={converters:StringPathToImageConverter}, Mode=TwoWay}"
+                                                  LineThickness="{Binding LineThickness, UpdateSourceTrigger=PropertyChanged}"
+                                                  DrawingShape="{Binding Shape, Mode=TwoWay}"
+                                                  BehaviorType="{Binding Behavior, Mode=TwoWay}"
+                                                  attachedPropetries:SizeObserver.Observe="True"
+                                                  attachedPropetries:SizeObserver.ObservedHeight="{Binding CurrentImage.Height, UpdateSourceTrigger=PropertyChanged}"
+                                                  attachedPropetries:SizeObserver.ObservedWidth="{Binding CurrentImage.Width, UpdateSourceTrigger=PropertyChanged}"
+                                                  MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                                  BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                                  BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"
+                                                  EditModels="{Binding CurrentImage.EditModels, Mode=TwoWay}"
+                                                  CurrentImageID="{Binding CurrentImage.ID, Mode=TwoWay}"
+                                                  CommandType="{Binding CommandType, Mode=TwoWay}"/>
 
             <!-- Right side drop shadow -->
             <Border Grid.Column="3" Style="{StaticResource VerticalDropshadowReversed}"/>
 
             <!-- Container with buttons for editing image -->
-            <Grid Width="0"
-                  Grid.Column="4"
-                  attachedPropetries:VisibilityProperty.ListVisibility="{Binding IsEditBarVisible}"
-                  Style="{StaticResource SlideInOut}">
-                <Grid.RowDefinitions>
-
-                    <!-- Draw rectangle button -->
-                    <RowDefinition Height="*"/>
-
-                    <!-- Draw circle button -->
-                    <RowDefinition Height="*"/>
-
-                    <!-- Draw line button -->
-                    <RowDefinition Height="*"/>
-
-                    <!-- Marker button -->
-                    <RowDefinition Height="*"/>
-
-                </Grid.RowDefinitions>
-
-                <!-- Draw rectangle button -->
-                <Button Grid.Row="0" Style="{StaticResource Backgroundless}" Padding="60">
-                    <Image Source="{StaticResource RectangleDrawingImage}"/>
-                </Button>
-
-                <!-- Draw circle button -->
-                <Button Grid.Row="1" Style="{StaticResource Backgroundless}" Padding="60">
-                    <Image Source="{StaticResource CircleDrawingImage}"/>
-                </Button>
-
-                <!-- Draw line button -->
-                <Button Grid.Row="2" Style="{StaticResource Backgroundless}" Padding="60">
-                    <Image Source="{StaticResource LineDrawingImage}"/>
-                </Button>
-
-                <!-- Marker button -->
-                <Button Grid.Row="3" Style="{StaticResource Backgroundless}" Padding="60">
-                    <Image Source="{StaticResource MarkerDrawingImage}"/>
-                </Button>
-            </Grid>
+            <userControls:EditBarControl Grid.Column="4"
+                                         DrawRectangle="{Binding DrawRectangleCommand}"
+                                         DrawCircle="{Binding DrawCircleCommand}"
+                                         DrawLine="{Binding DrawLineCommand}"
+                                         DrawPolyline="{Binding DrawPolylineCommand}"
+                                         MainColor="{Binding MainColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                         BorderColor="{Binding BorderColor, Converter={converters:StringToColorConverter}, Mode=TwoWay}"
+                                         BackgroundOpacity="{Binding BackgroundOpacity, Mode=TwoWay}"/>
         </Grid>
 
         <!-- Bottom Drop Shadow-->
         <Border Grid.Row="1" Style="{StaticResource HorizontalDropShadowReversed}"/>
 
-        <!-- The button bar with buttons -->
-        <Grid Grid.Row="2">
-            <Grid.ColumnDefinitions>
-
-                <!-- Open left side menu button -->
-                <ColumnDefinition Width="2*"/>
-
-                <!-- Copy button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Save button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Zoom in button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Zoom out button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Rotate left button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Rotate right button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Select area button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Crop button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Open files button -->
-                <ColumnDefinition Width="*"/>
-
-                <!-- Open right side menu button -->
-                <ColumnDefinition Width="2*"/>
-
-            </Grid.ColumnDefinitions>
-
-            <!-- Open left side menu button -->
-            <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" Command="{Binding SwitchListVisibilityCommand}"/>
-
-            <!-- Copy button-->
-            <Button Grid.Column="1" Style="{StaticResource Backgroundless}" x:Name="CopyButton" Click="CopyButton_Click">
-                <Image Source="{StaticResource CopyDrawingImage}"/>
-            </Button>
-
-            <Button Grid.Column="2" Style="{StaticResource Backgroundless}" x:Name="SaveButton" Click="SaveButton_Click">
-                <Image Source="{StaticResource SaveImageDrawingImage}"/>
-            </Button>
-
-            <!-- Zoom in button-->
-            <Button Grid.Column="3" Style="{StaticResource Backgroundless}" x:Name="ZoomInButton" Command="{Binding ZoomInCommand}">
-                <Image Source="{StaticResource ZoomInDrawingImage}"/>
-            </Button>
-
-            <!-- Zoom out button-->
-            <Button Grid.Column="4" Style="{StaticResource Backgroundless}" x:Name="ZoomOutButton" Command="{Binding ZoomOutCommand}">
-                <Image Source="{StaticResource ZoomOutDrawingImage}"/>
-            </Button>
-
-            <!-- Rotate left button-->
-            <Button Grid.Column="5" Style="{StaticResource Backgroundless}" x:Name="RotateLeftButton" Command="{Binding RotateLeftCommand}">
-                <Image Source="{StaticResource RotateLeftDrawingImage}"/>
-            </Button>
-
-            <!-- Rotate right button-->
-            <Button Grid.Column="6" Style="{StaticResource Backgroundless}" x:Name="RotateRightButton" Command="{Binding RotateRightCommand}">
-                <Image Source="{StaticResource RotateRightDrawingImage}"/>
-            </Button>
-
-            <!-- Select area button -->
-            <Button Grid.Column="7" Style="{StaticResource Backgroundless}" x:Name="SelectAreaButton" Click="SelectAreaButton_Click">
-                <Image Source="{StaticResource SelectDrawingImage}"/>
-            </Button>
-
-            <!-- Crop button-->
-            <Button Grid.Column="8" Style="{StaticResource Backgroundless}" x:Name="CropButton" MouseRightButtonDown="CropButton_MouseRightButtonDown" Click="CropButton_Click">
-                <Image Source="{StaticResource ScissorsDrawingImage}"/>
-            </Button>
-
-            <!-- Copy button-->
-            <Button Grid.Column="9" Style="{StaticResource Backgroundless}" Content="Open..." Command="{Binding AddImagesCommand}"/>
-
-            <!-- Open right side menu button-->
-            <Button Grid.Column="10" Style="{StaticResource Backgroundless}" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
-
-        </Grid>
+        <!-- The bottom bar with buttons -->
+        <userControls:BottomBarControl Grid.Row="2" 
+                                       SaveImage="{Binding SaveImageCommand}" 
+                                       CopyImage="{Binding CopyImageCommand}"
+                                       CropImage="{Binding CropImageCommand}"
+                                       RemoveCrop="{Binding RemoveCropCommand}"
+                                       SelectArea="{Binding ChangeBehaviorToCopyCropSaveCommand}"/>
+        
     </Grid>
 </Page>

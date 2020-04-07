@@ -1,0 +1,102 @@
+﻿<UserControl x:Class="ImageViewer.Views.UserControls.BottomBarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
+             mc:Ignorable="d" 
+             d:DesignHeight="100" d:DesignWidth="800">
+    <Grid>
+
+        <Grid.ColumnDefinitions>
+
+            <!-- Open left side menu button -->
+            <ColumnDefinition Width="2*"/>
+
+            <!-- Copy button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Save button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Zoom in button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Zoom out button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Rotate left button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Rotate right button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Select area button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Crop button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Open files button -->
+            <ColumnDefinition Width="*"/>
+
+            <!-- Open right side menu button -->
+            <ColumnDefinition Width="2*"/>
+
+        </Grid.ColumnDefinitions>
+
+        <!-- Open left side menu button -->
+        <Button Grid.Column="0" Style="{StaticResource Backgroundless}" Content="Image List" ToolTip="Show or hide image list" Command="{Binding SwitchListVisibilityCommand}"/>
+
+        <!-- Copy button-->
+        <Button Grid.Column="1" Style="{StaticResource Backgroundless}" ToolTip="Copy image to clipboard" Command="{Binding Path=CopyImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource CopyDrawingImage}"/>
+        </Button>
+
+        <!-- Save button -->
+        <Button Grid.Column="2" Style="{StaticResource Backgroundless}" ToolTip="Save image" Command="{Binding Path=SaveImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource SaveImageDrawingImage}"/>
+        </Button>
+
+        <!-- Zoom in button-->
+        <Button Grid.Column="3" Style="{StaticResource Backgroundless}" ToolTip="Zoom in" Command="{Binding ZoomInCommand}">
+            <Image Source="{StaticResource ZoomInDrawingImage}"/>
+        </Button>
+
+        <!-- Zoom out button-->
+        <Button Grid.Column="4" Style="{StaticResource Backgroundless}" ToolTip="Zoom out" Command="{Binding ZoomOutCommand}">
+            <Image Source="{StaticResource ZoomOutDrawingImage}"/>
+        </Button>
+
+        <!-- Rotate left button-->
+        <Button Grid.Column="5" Style="{StaticResource Backgroundless}" ToolTip="Rotate left" Command="{Binding RotateLeftCommand}">
+            <Image Source="{StaticResource RotateLeftDrawingImage}"/>
+        </Button>
+
+        <!-- Rotate right button-->
+        <Button Grid.Column="6" Style="{StaticResource Backgroundless}" ToolTip="Rotate right" Command="{Binding RotateRightCommand}">
+            <Image Source="{StaticResource RotateRightDrawingImage}"/>
+        </Button>
+
+        <!-- Select area button -->
+        <Button Grid.Column="7" Style="{StaticResource Backgroundless}" ToolTip="Choose area to crop" Command="{Binding Path=SelectArea, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}">
+            <Image Source="{StaticResource SelectDrawingImage}"/>
+        </Button>
+
+        <!-- Crop button-->
+        <Button Grid.Column="8" Style="{StaticResource Backgroundless}" ToolTip="Crop chosen area">
+            <Button.InputBindings>
+                <MouseBinding Gesture="LeftClick" Command="{Binding Path=CropImage, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+                <MouseBinding Gesture="RightClick" Command="{Binding Path=RemoveCrop, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type UserControl}}}"/>
+            </Button.InputBindings>
+            <Image Source="{StaticResource ScissorsDrawingImage}"/>
+        </Button>
+
+        <!-- Copy button-->
+        <Button Grid.Column="9" Style="{StaticResource Backgroundless}" ToolTip="Open image files" Content="Open..." Command="{Binding AddImagesCommand}"/>
+
+        <!-- Open right side menu button-->
+        <Button Grid.Column="10" Style="{StaticResource Backgroundless}" ToolTip="Show or hide edit bar" Content="Edit Image" Command="{Binding SwitchEditBarVisibilityCommand}"/>
+
+    </Grid>
+</UserControl>

@@ -9,11 +9,11 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
                     <Border x:Name="rectangle"
-                                SnapsToDevicePixels="True"
-                                Background="Black"
-                                CornerRadius="5"
-                                Height="{TemplateBinding Height}"
-                                Width="{TemplateBinding Width}"/>
+                            SnapsToDevicePixels="True"
+                            Background="Black"
+                            CornerRadius="5"
+                            Height="{TemplateBinding Height}"
+                            Width="{TemplateBinding Width}"/>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
@@ -28,14 +28,14 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ScrollBar}">
-                    <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="{StaticResource BackgroudVeryLightBrush}">
+                    <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="{StaticResource ForegroundLightBrush}">
 
                         <Border Padding="0 4">
                             <Track x:Name="PART_Track"
-                               IsDirectionReversed="true"
-                               IsEnabled="{TemplateBinding IsMouseOver}"
-                               Width="10"
-                               HorizontalAlignment="Center">
+                                   IsDirectionReversed="true"
+                                   IsEnabled="{TemplateBinding IsMouseOver}"
+                                   Width="10"
+                                   HorizontalAlignment="Center">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Opacity="0" Command="{x:Static ScrollBar.PageUpCommand}" />
                                 </Track.DecreaseRepeatButton>
@@ -57,15 +57,15 @@
                 <Setter Property="MinWidth" Value="0"/>
                 <Setter Property="Height" Value="14"/>
                 <Setter Property="MinHeight" Value="{Binding Height, RelativeSource={RelativeSource Self}}"/>
-                <Setter Property="Margin" Value="0 -14 0 0" />
+                <Setter Property="Margin" Value="-2 -14 0 0" />
 
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type ScrollBar}">
                             <Grid x:Name="Bg" SnapsToDevicePixels="true" Background="White">
                                 <Track x:Name="PART_Track"
-                                    IsEnabled="{TemplateBinding IsMouseOver}"
-                                    Height="10"
+                                       IsEnabled="{TemplateBinding IsMouseOver}"
+                                       Height="10"
                                        >
                                     <Track.DecreaseRepeatButton>
                                         <RepeatButton Opacity="0" Command="{x:Static ScrollBar.PageLeftCommand}"/>

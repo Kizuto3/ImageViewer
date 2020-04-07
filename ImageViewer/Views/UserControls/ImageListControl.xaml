@@ -1,18 +1,38 @@
 ﻿<UserControl x:Class="ImageViewer.Views.UserControls.ImageListControl"
+             x:Name="ImageList"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ImageViewer.Views.UserControls"
-             xmlns:models="clr-namespace:ImageViewer.Models"
-             xmlns:converters="clr-namespace:ImageViewer.ValueConverters"
-             mc:Ignorable="d" 
-             d:DesignHeight="450">
-    <Grid>
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
+             xmlns:attachedProperties="clr-namespace:ImageViewer.AttachedProperties"
+             xmlns:i="clr-namespace:System.Windows.Interactivity;assembly=System.Windows.Interactivity"
+             mc:Ignorable="d" >
+
+    <Grid attachedProperties:VisibilityProperty.ListVisibility="{Binding CurrentPage.IsListVisible}"
+          Style="{StaticResource SlideInOutReversed}">
+        
+        <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Hidden">
             <ListView ItemsSource="{Binding Images}" 
                       SelectedItem="{Binding CurrentImage}"
                       Style="{StaticResource ImageList}">
+
+                <!-- Pop up context menu that allows to remove item -->
+                <ListView.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Remove"
+                                  Command="{Binding RemoveImageCommand}"
+                                  CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=ContextMenu}, Path=PlacementTarget.SelectedItem}" />
+                    </ContextMenu>
+                </ListView.ContextMenu>
+
+                <!-- Binding SelectionChanged event to command -->
+                <i:Interaction.Triggers>
+                    <i:EventTrigger EventName="SelectionChanged">
+                        <i:InvokeCommandAction Command="{Binding SelectionChangedCommand}"/>
+                    </i:EventTrigger>
+                </i:Interaction.Triggers>
+                
             </ListView>
         </ScrollViewer>
     </Grid>

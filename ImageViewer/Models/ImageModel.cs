@@ -1,8 +1,7 @@
 ﻿using Prism.Mvvm;
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows;
 
 namespace ImageViewer.Models
 {
@@ -11,41 +10,51 @@ namespace ImageViewer.Models
         #region Private Members
 
         /// <summary>
-        /// Full path to an image 
+        /// Full path to the image 
         /// </summary>
         private string _fullPath;
 
         /// <summary>
-        /// Scale of an image
+        /// Scale of the image
         /// </summary>
         private double _scaleX;
 
         /// <summary>
-        /// Scale of an image
+        /// Scale of the image
         /// </summary>
         private double _scaleY;
 
         /// <summary>
-        /// Rotation angle of an image
+        /// Rotation angle of the image
         /// </summary>
         private double _angle;
 
         /// <summary>
-        /// Actual width of an image
+        /// Actual width of the image
         /// </summary>
         private double _width;
 
         /// <summary>
-        /// Actual height of an image
+        /// Actual height of the image
         /// </summary>
         private double _height;
+
+        /// <summary>
+        /// Edit models of this image model
+        /// </summary>
+        private ObservableCollection<EditModel> _editModels;
 
         #endregion
 
         #region Public Properties
 
         /// <summary>
-        /// Full path to image
+        /// ID of the image
+        /// </summary>
+        public int ID { get; set; }
+
+        /// <summary>
+        /// Full path to the image
         /// </summary>
         public string FullPath
         {
@@ -60,7 +69,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Scale of image
+        /// Scale of the image
         /// </summary>
         public double ScaleX
         {
@@ -75,7 +84,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Scale of image
+        /// Scale of the image
         /// </summary>
         public double ScaleY
         {
@@ -90,7 +99,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Rotation angle of image
+        /// Rotation angle of the image
         /// </summary>
         public double Angle
         {
@@ -105,7 +114,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Actual width of an image
+        /// Actual width of the image
         /// </summary>
         public double Width
         {
@@ -120,7 +129,7 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
-        /// Actual height of an image
+        /// Actual height of the image
         /// </summary>
         public double Height
         {
@@ -135,6 +144,21 @@ namespace ImageViewer.Models
         }
 
         /// <summary>
+        /// Edit models of this image model
+        /// </summary>
+        public ObservableCollection<EditModel> EditModels
+        {
+            get
+            {
+                return _editModels;
+            }
+            set
+            {
+                SetProperty(ref _editModels, value);
+            }
+        }
+
+        /// <summary>
         /// File name of the image
         /// </summary>
         public string FileName
@@ -144,7 +168,7 @@ namespace ImageViewer.Models
                 return Path.GetFileName(_fullPath);
             }
         }
-
+            
         #endregion
 
         /// <summary>
@@ -156,18 +180,20 @@ namespace ImageViewer.Models
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
+            _editModels = new ObservableCollection<EditModel>();
         }
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="path">Full path to image</param>
-        public ImageModel(string path)
+        public ImageModel(string path, ObservableCollection<EditModel> editModels)
         {
             _fullPath = path;
             _scaleX = 1;
             _scaleY = 1;
             _angle = 0;
+            _editModels = editModels;
         }
 
         /// <summary>
@@ -177,19 +203,15 @@ namespace ImageViewer.Models
         /// <returns></returns>
         public override bool Equals(object obj)
         {
-            try
+            if(obj is ImageModel)
             {
-                // Try to cast object to Image model
-                var image1 = (ImageModel)obj;
+                // cast object to Image model
+                var image1 = obj as ImageModel;
 
                 // And compare their paths
                 return FullPath.Equals(image1.FullPath);
             }
-            catch(InvalidCastException)
-            {
-                //Otherwise compare by references
-                return base.Equals(obj);
-            }
+            return base.Equals(obj);
         }
 
         /// <summary>

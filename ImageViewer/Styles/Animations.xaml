@@ -3,18 +3,33 @@
                     xmlns:local="clr-namespace:ImageViewer.Styles"
                     xmlns:attachedPropetries="clr-namespace:ImageViewer.AttachedProperties">
 
+    <!-- Animation to slide in -->
     <Storyboard x:Key="SlideIn">
         <DoubleAnimation Storyboard.TargetProperty="Width"
-                            From="0" To="200" 
-                            Duration="0:0:0.3"/>
+                         From="0" To="200" 
+                         Duration="0:0:0.3"
+                         DecelerationRatio="0.9"/>
     </Storyboard>
 
+    <!-- Animation to slide out -->
     <Storyboard x:Key="SlideOut">
         <DoubleAnimation Storyboard.TargetProperty="Width"
-                            From="200" To="0" 
-                            Duration="0:0:0.3"/>
+                         From="200" To="0" 
+                         Duration="0:0:0.3"
+                         DecelerationRatio="0.9"/>
     </Storyboard>
 
+    <!-- Animation to change background color to transparent -->
+    <Storyboard x:Key="BackgroundToTransparent">
+        <ColorAnimation To="Transparent" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
+    </Storyboard>
+
+    <!-- Animation to change background color to light (see Colors.xaml) -->
+    <Storyboard x:Key="BackgroundToLight">
+        <ColorAnimation To="{StaticResource BackgroudLight}" Duration="0:0:0.1" Storyboard.TargetProperty="Background.Color"/>
+    </Storyboard>
+
+    <!-- Style to apply slide in and slide out animations to control-->
     <Style x:Key="SlideInOut">
         <Style.Triggers>
 
@@ -32,6 +47,7 @@
         </Style.Triggers>
     </Style>
 
+    <!-- Style to apply reversed slide in and slide out animations to control-->
     <Style x:Key="SlideInOutReversed">
         <Style.Triggers>
 
