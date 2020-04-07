@@ -17,7 +17,7 @@
                       SelectedItem="{Binding CurrentImage}"
                       Style="{StaticResource ImageList}">
 
-                <!-- Pop up context menu that allows to remove item-->
+                <!-- Pop up context menu that allows to remove item -->
                 <ListView.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="Remove"
